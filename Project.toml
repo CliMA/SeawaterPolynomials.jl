@@ -1,0 +1,4 @@
+name = "SeawaterPolynomials"
+uuid = "d496a93d-167e-4197-9f49-d3af4ff8fe40"
+authors = ["Gregory Wagner <wagner.greg@gmail.com>"]
+version = "0.1.0"
