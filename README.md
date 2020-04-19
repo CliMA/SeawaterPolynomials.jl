@@ -13,7 +13,7 @@ In the seawater Boussinesq approximation, the density of seawater is expanded ar
 ```
 
 where the anomaly, `ρ′`, is a function of conservative temperature `Θ`, absolute salinity `Sᴬ`, and geopotential depth `Z`.
-One choice for `ρᵣ` might be the average density at the surface of the world ocean, `ρᵣ = 1024.6 kg m⁻³`, according to [Roquet et al. (2015)](https://doi.org/10.1175/JPO-D-15-0080.1).
+One choice for `ρᵣ` is the average density at the surface of the world ocean, `ρᵣ = 1024.6 kg m⁻³`, according to [Roquet et al. (2015)](https://doi.org/10.1175/JPO-D-15-0080.1).
 
 ## The TEOS-10 standard
 
