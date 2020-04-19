@@ -1,38 +1,47 @@
 module SeawaterPolynomials
 
-export EquationOfState, SecondOrderSeawaterPolynomial, RoquetLinearSeawaterPolynomial,
-       ρ, ρ′
+"""
+    AbstractSeawaterPolynomial
 
+Abstract type for Boussinesq equations of state expressed as polynomial functions
+of conservative temperature, absolute salinity, and geopotential depth.
+"""
 abstract type AbstractSeawaterPolynomial end
 
-struct EquationOfState{P, FT}
-      reference_density :: FT
+"""
+    ρ(Θ, Sᴬ, Z, equation_of_state)
+
+Returns the total density of a seawater parcel that has conservative tempertuare `Θ`, absolute
+salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
+
+The geopotential height Z(x, y) is defined such that `Z(x, y) = 0` at sea level and 
+*decreases* downwards to negative values, towards the bottom of the ocean.
+
+This function aliases `total_density`.
+"""
+function ρ end
+
+"""
+    ρ′(Θ, Sᴬ, Z, equation_of_state)
+
+Returns the total density of a seawater parcel that has conservative tempertuare `Θ`, absolute
+salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
+
+The geopotential height Z(x, y) is defined such that `Z(x, y) = 0` at sea level and 
+*decreases* downwards to negative values, towards the bottom of the ocean.
+
+The function aliases `density_anomaly`.
+"""
+function ρ′ end
+
+const total_density = ρ
+const density_anomaly = ρ′
+
+struct BoussinesqEquationOfState{P, FT}
     seawater_polynomial :: P
+      reference_density :: FT
 end
 
-@Base.kwdef struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
-    R₀₁₀ :: FT
-    R₀₀₁ :: FT
-    R₀₂₀ :: FT
-    R₀₁₁ :: FT
-    R₂₀₀ :: FT
-    R₁₀₁ :: FT
-    R₁₁₀ :: FT
-end
-
-RoquetLinearSeawaterPolynomial(FT=Float64) =
-    SecondOrderSeawaterPolynomial{FT}(
-                                      R₀₁₀ = -1.775e-1,
-                                      R₀₀₁ = 7.718e-1,
-                                      R₀₂₀ = 0,
-                                      R₀₁₁ = 0,
-                                      R₂₀₀ = 0,
-                                      R₁₀₁ = 0,
-                                      R₁₁₀ = 0
-                                     )
-
-const EOS = EquationOfState
-
-#ρ′(Θ, Sᴬ, Z, eos::EOS{<:SecondOrderSeawaterPolynomial}) = 
+include("SecondOrderSeawaterPolynomials.jl")
 
 end # module
