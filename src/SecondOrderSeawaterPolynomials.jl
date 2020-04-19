@@ -6,7 +6,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ, ρ′
+import SeawaterPolynomials: ρ′, thermal_expansion, haline_contraction
 
 @Base.kwdef struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
     R₀₁₀ :: FT = 0
@@ -18,10 +18,25 @@ import SeawaterPolynomials: ρ, ρ′
     R₁₁₀ :: FT = 0
 end
 
-const EOS = BoussinesqEquationOfState
+const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
-#ρ′(Θ, Sᴬ, Z, eos::EOS{<:SecondOrderSeawaterPolynomial}) = 
-#ρ(Θ, Sᴬ, Z, eos::EOS{<:SecondOrderSeawaterPolynomial}) = 
+@inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.polynomial_coeffs.R₁₀₀ * Sᴬ
+                                   + eos.polynomial_coeffs.R₀₁₀ * Θ
+                                   + eos.polynomial_coeffs.R₀₂₀ * Θ^2
+                                   - eos.polynomial_coeffs.R₀₁₁ * Θ * Z
+                                   + eos.polynomial_coeffs.R₂₀₀ * Sᴬ^2
+                                   - eos.polynomial_coeffs.R₁₀₁ * Sᴬ * Z
+                                   + eos.polynomial_coeffs.R₁₁₀ * Sᴬ * Θ )
+
+@inline thermal_expansion(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.polynomial_coeffs.R₀₁₀
+                                                  + 2 * eos.polynomial_coeffs.R₀₂₀ * Θ
+                                                  -     eos.polynomial_coeffs.R₀₁₁ * Z
+                                                  +     eos.polynomial_coeffs.R₁₁₀ * Sᴬ )
+
+@inline haline_contraction(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.polynomial_coeffs.R₁₀₀
+                                                   + 2 * eos.polynomial_coeffs.R₂₀₀ * Sᴬ
+                                                   -     eos.polynomial_coeffs.R₁₀₁ * Z
+                                                   +     eos.polynomial_coeffs.R₁₁₀ * Θ )
 
 """
     RoquetSeawaterPolynomial([FT=Float64,] coefficient_set=:SecondOrder)
