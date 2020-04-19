@@ -2,7 +2,7 @@
 
 This package provides approximations to the Boussinesq equation of state for seawater expressed as polynomial functions of conservative temperature, absolute salinity, and geopotential depth. 
 
-Computationally efficient polynomial approximations to the Boussinesq seawater equation of state are crucial components of ocean modeling software.
+Computationally efficient polynomial approximations to the [Boussinesq seawater](Young, W. R., "Dynamic Enthalpy, Conservative Temperature, and the Seawater Boussinesq Approximation", Journal of Physical Oceanography (2010)) equation of state are crucial components of ocean modeling software.
 
 ## The Seawater Boussinesq approximation
 
