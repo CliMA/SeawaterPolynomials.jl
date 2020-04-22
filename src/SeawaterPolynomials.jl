@@ -39,7 +39,7 @@ function ρ′ end
 
 Returns the thermal expansion coefficient,
 
-``α = - ∂ρ / ∂θ``
+``α = - ∂ρ / ∂Θ``
 
 for a seawater parcel with conservative tempertuare `Θ`, absolute
 salinity `Sᴬ`, at the geopotential height `Z`, and using the 

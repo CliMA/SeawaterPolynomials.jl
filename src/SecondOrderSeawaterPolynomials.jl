@@ -21,8 +21,13 @@ The coefficients have the form
 Rᵦᵪᵩ
 ```
 
-where `β, χ, φ` denote the order of the term to which the coefficent responds.
-Thus the coefficient `R₁₀₁` arises in the seawater polynomial as
+where `β, χ, φ` denote the order of the term to which the coefficent responds:
+`β` is the polynomial order of absolute salinity, `Sᴬ`, `χ` is the polynomial order
+of conservative temperature, `Θ`, and `φ` is the order of geopotential height, `Z`.
+
+Because the polynomial is second order, `β + χ + φ < 2`.
+
+Thus the coefficient `R₁₁₀` arises in the seawater polynomial as
 
 ```math
 seawater_polynomial(Θ, Sᴬ, Z) = ⋯ + R₁₁₀ * Sᴬ * Θ + ⋯
