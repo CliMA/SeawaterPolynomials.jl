@@ -45,23 +45,23 @@ end
 
 const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
-@inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.polynomial_coeffs.R₁₀₀ * Sᴬ
-                                   + eos.polynomial_coeffs.R₀₁₀ * Θ
-                                   + eos.polynomial_coeffs.R₀₂₀ * Θ^2
-                                   - eos.polynomial_coeffs.R₀₁₁ * Θ * Z
-                                   + eos.polynomial_coeffs.R₂₀₀ * Sᴬ^2
-                                   - eos.polynomial_coeffs.R₁₀₁ * Sᴬ * Z
-                                   + eos.polynomial_coeffs.R₁₁₀ * Sᴬ * Θ )
+@inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₁₀₀ * Sᴬ
+                                   + eos.seawater_polynomial.R₀₁₀ * Θ
+                                   + eos.seawater_polynomial.R₀₂₀ * Θ^2
+                                   - eos.seawater_polynomial.R₀₁₁ * Θ * Z
+                                   + eos.seawater_polynomial.R₂₀₀ * Sᴬ^2
+                                   - eos.seawater_polynomial.R₁₀₁ * Sᴬ * Z
+                                   + eos.seawater_polynomial.R₁₁₀ * Sᴬ * Θ )
 
-@inline thermal_expansion(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.polynomial_coeffs.R₀₁₀
-                                                  + 2 * eos.polynomial_coeffs.R₀₂₀ * Θ
-                                                  -     eos.polynomial_coeffs.R₀₁₁ * Z
-                                                  +     eos.polynomial_coeffs.R₁₁₀ * Sᴬ )
+@inline thermal_expansion(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₁₀
+                                                  + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
+                                                  -     eos.seawater_polynomial.R₀₁₁ * Z
+                                                  +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
 
-@inline haline_contraction(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.polynomial_coeffs.R₁₀₀
-                                                   + 2 * eos.polynomial_coeffs.R₂₀₀ * Sᴬ
-                                                   -     eos.polynomial_coeffs.R₁₀₁ * Z
-                                                   +     eos.polynomial_coeffs.R₁₁₀ * Θ )
+@inline haline_contraction(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
+                                                   + 2 * eos.seawater_polynomial.R₂₀₀ * Sᴬ
+                                                   -     eos.seawater_polynomial.R₁₀₁ * Z
+                                                   +     eos.seawater_polynomial.R₁₁₀ * Θ )
 
 """
     RoquetSeawaterPolynomial([FT=Float64,] coefficient_set=:SecondOrder)
