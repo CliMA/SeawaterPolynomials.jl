@@ -87,5 +87,6 @@ struct BoussinesqEquationOfState{P, FT}
 end
 
 include("SecondOrderSeawaterPolynomials.jl")
+include("TEOS10.jl")
 
 end # module
