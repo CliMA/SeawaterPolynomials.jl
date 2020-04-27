@@ -86,6 +86,8 @@ struct BoussinesqEquationOfState{P, FT}
       reference_density :: FT
 end
 
+@inline reference_density(eos) = eos.reference_density
+
 include("SecondOrderSeawaterPolynomials.jl")
 include("TEOS10.jl")
 

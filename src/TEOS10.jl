@@ -13,16 +13,48 @@ import SeawaterPolynomials: ρ′, thermal_expansion, haline_contraction
 ##### into Julia from https://github.com/fabien-roquet/polyTEOS/blob/master/polyTEOS10.py
 #####
 
+"""
+    struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
+
+A 55-term polynomial approximation to the TEOS-10 standard equation of state for seawater.
+"""
 struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
 
+"""
+    TEOS10SeawaterPolynomial(FT=Float64)
+
+Returns an object representing
+a 55-term polynomial approximation to the TEOS-10 standard equation of state for seawater.
+
+See
+
+> Roquet et al., "Accurate polynomial expressions for the density and specific volume of 
+    seawater using the TEOS-10 standard", Ocean Modelling (2015).
+"""
 TEOS10SeawaterPolynomial(FT=Float64) = TEOS10SeawaterPolynomial{FT}()
 
 const EOS₁₀ = BoussinesqEquationOfState{<:TEOS10SeawaterPolynomial}
 
-TEOS10EquationOfState(FT=Float64; reference_density=1024.6) =
-    BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(), reference_density)
+"""
+    TEOS10EquationOfState(FT=Float64; reference_density=1020)
 
-#TEOS10(FT=Float64) = TEOS10{FT}()
+Returns an `BoussinesqEquationOfState` with a `TEOS10SeawaterPolynomial` of float type `FT`
+with `reference density = 1020 kg m⁻³`, the value used by 
+
+> Roquet et al., "Accurate polynomial expressions for the density and specific volume of 
+    seawater using the TEOS-10 standard", Ocean Modelling (2015).
+
+when fitting polynomial coefficients to the full TEOS-10 standard equation of state.
+See the discussion prior to equation 8 in Roquet et al. (2015).
+
+Note that
+
+> In a Boussinesq model, the choice of the ρ₀ value is important, yet it varies significantly among
+  OGCMs, as it is a matter of personal preference.
+  ---Roquet et al. (2015)
+"""
+TEOS10EquationOfState(FT=Float64; reference_density=1020) =
+    BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(), reference_density)
 
 #####
 ##### Reference values chosen using TEOS-10 recommendation
@@ -136,7 +168,7 @@ const R₀₁₃ =  3.7969820455e-01
 #####
 
 """
-    ρ′(Θ, Sᴬ, Z, ::TEOS10) = _ρ′(τ(Θ), s(Sᴬ), ζ(Z))
+    ρ′(Θ, Sᴬ, Z, ::BoussinesqEquationOfState{<:TEOS10EquationOfState})
 
 Returns the in-situ density of seawater with state (Θ, Sᴬ, Z) using the 55-term
 polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
