@@ -42,8 +42,15 @@ end
         for FT in (Float64, Float32)
             @test instantiate_roquet_polynomial(FT, coefficient_set)
             @test instantiate_roquet_equation_of_state(FT, coefficient_set)
+
+            eos = RoquetEquationOfState(FT)
+
+            @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == 0
+            @test SeawaterPolynomials.haline_contraction(0, 0, 0, eos) == eos.seawater_polynomial.R₁₀₀
+            @test SeawaterPolynomials.thermal_expansion(0, 0, 0, eos) == eos.seawater_polynomial.R₀₁₀
         end
     end
+
 end
 
 @testset "TEOS-10 seawater polynomials" begin
