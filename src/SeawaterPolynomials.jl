@@ -91,4 +91,7 @@ end
 include("SecondOrderSeawaterPolynomials.jl")
 include("TEOS10.jl")
 
+using .SecondOrderSeawaterPolynomials
+using .TEOS10
+
 end # module
