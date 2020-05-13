@@ -12,8 +12,9 @@ import SeawaterPolynomials: ρ′, thermal_expansion, haline_contraction
 """
     struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
 
-Coefficients for a second-order polynomial function of absolute salinity `Sᴬ`, 
-conservative temperature `Θ`, and geopotential depth `Z` for seawater density.
+Container of coefficients for a second-order polynomial function of 
+absolute salinity `Sᴬ`, conservative temperature `Θ`, and geopotential 
+depth `Z` for seawater density.
 
 The coefficients have the form
 
@@ -21,13 +22,13 @@ The coefficients have the form
 Rᵦᵪᵩ
 ```
 
-where `β, χ, φ` denote the order of the term to which the coefficent responds:
+where `β, χ, φ` denote the order of the term to which the coefficent corresponds:
 `β` is the polynomial order of absolute salinity, `Sᴬ`, `χ` is the polynomial order
 of conservative temperature, `Θ`, and `φ` is the order of geopotential height, `Z`.
 
-Because the polynomial is second order, `β + χ + φ < 2`.
+For a `SecondOrderSeawaterPolynomial`, `β + χ + φ < 3`.
 
-Thus the coefficient `R₁₁₀` arises in the seawater polynomial as
+The coefficient `R₁₁₀` arises in the seawater polynomial as
 
 ```math
 seawater_polynomial(Θ, Sᴬ, Z) = ⋯ + R₁₁₀ * Sᴬ * Θ + ⋯
