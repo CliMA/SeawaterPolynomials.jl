@@ -5,7 +5,7 @@ using
 format = Documenter.HTML(
   collapselevel = 2,
      prettyurls = get(ENV, "CI", nothing) == "true",
-      canonical = "https://glwagner.github.io/SeawaterPolynomials/dev/"
+      canonical = "https://clima.github.io/SeawaterPolynomials/dev/"
 )
 
 makedocs(
@@ -14,7 +14,7 @@ makedocs(
       clean = true,
    checkdocs = :all,
      format = format,
-    authors = "Clima-Ocean",
+    authors = "Gregory L. Wagner and Ali Ramadhan",
    sitename = "SeawaterPolynomials.jl",
   
       pages = Any[
@@ -26,5 +26,5 @@ makedocs(
 )
 
 deploydocs(
-  repo = "github.com/glwagner/SeawaterPolynomials.jl.git",
+  repo = "github.com/CliMA/SeawaterPolynomials.jl.git",
 )
