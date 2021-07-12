@@ -1,6 +1,2 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-SeawaterPolynomials = "d496a93d-167e-4197-9f49-d3af4ff8fe40"
-
-[compat]
-Documenter = "^0.24"

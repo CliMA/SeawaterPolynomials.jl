@@ -3,9 +3,10 @@ using
   SeawaterPolynomials
 
 format = Documenter.HTML(
-  collapselevel = 2,
-     prettyurls = get(ENV, "CI", nothing) == "true",
-      canonical = "https://clima.github.io/SeawaterPolynomials/dev/"
+    collapselevel = 1,
+       prettyurls = get(ENV, "CI", nothing) == "true",
+        canonical = "https://clima.github.io/SeawaterPolynomials/stable/",
+       mathengine = MathJax3()
 )
 
 makedocs(
@@ -26,5 +27,7 @@ makedocs(
 )
 
 deploydocs(
-  repo = "github.com/CliMA/SeawaterPolynomials.jl.git",
+        repo = "github.com/CliMA/SeawaterPolynomials.jl.git",
+    versions = ["stable" => "v^", "v#.#", "dev" => "dev"],
+push_preview = true
 )
