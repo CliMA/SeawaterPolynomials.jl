@@ -20,9 +20,6 @@ makedocs(
   
       pages = Any[
               "Home" => "index.md",
-              "DocStrings" => Any[
-                  "man/types.md",
-                  "man/functions.md"]
                  ]
 )
 

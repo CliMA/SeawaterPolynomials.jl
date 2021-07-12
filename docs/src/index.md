@@ -36,3 +36,13 @@ The error between the polynomials implemented in this package and the TEOS-10 is
 * [Roquet et al., "Defining a Simplified Yet “Realistic” Equation of State for Seawater", Journal of Physical Oceanography (2015)](https://doi.org/10.1175/JPO-D-15-0080.1)
 
 * [Young, W. R., "Dynamic Enthalpy, Conservative Temperature, and the Seawater Boussinesq Approximation", Journal of Physical Oceanography (2010)](https://doi.org/10.1175/2009JPO4294.1)
+
+
+
+
+
+## API
+
+```@autodocs
+Modules = [SeawaterPolynomials]
+```
