@@ -1,3 +1,17 @@
+<!-- Version and documentation badges -->
+<p align="center">
+  <a href="https://github.com/CliMA/SeawaterPolynomials.jl/releases">
+    <img alt="GitHub tag (latest SemVer pre-release)" src="https://img.shields.io/github/v/tag/CliMA/SeawaterPolynomials.jl?include_prereleases&label=latest%20version&logo=github&sort=semver&style=flat-square">
+  </a>
+  <a href="https://clima.github.io/SeawaterPolynomials.jl/stable">
+    <img alt="Stable documentation" src="https://img.shields.io/badge/documentation-stable%20release-blue?style=flat-square">
+  </a>
+  <a href="https://clima.github.io/SeawaterPolynomials.jl/dev">
+    <img alt="Development documentation" src="https://img.shields.io/badge/documentation-in%20development-orange?style=flat-square">
+  </a>
+</p>
+
+
 # SeawaterPolynomials.jl
 
 This package provides approximations to the Boussinesq equation of state for seawater expressed as polynomial functions of conservative temperature, absolute salinity, and geopotential height. 
