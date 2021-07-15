@@ -77,20 +77,20 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-    - `:Linear`: a linear equation of state, `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ`
+    - :Linear: a linear equation of state, ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ
 
-    - `:Cabbeling`: includes quadratic temperature term,
-                    `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2`
+    - :Cabbeling: includes quadratic temperature term,
+                  ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2
 
-    - `:CabbelingThermobaricity`: includes 'thermobaricity' term,
-                                   `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * Θ * Z`
+    - :CabbelingThermobaricity: includes 'thermobaricity' term,
+                                ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * Θ * Z
 
-    - `:Freezing`: same as `:cabbeling_thermobaricity` with modified constants to increase
+    - :Freezing: same as :cabbeling_thermobaricity with modified constants to increase
                    accuracy near freezing
 
-    - `:SecondOrder`: includes quadratic salinity, halibaricity, and thermohaline term,
-                       `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * T * Z`
-                             + R₂₀₀ * Sᴬ^2 - R₁₀₁ * Sᴬ * Z + R₁₁₀ * Sᴬ * Θ`
+    - :SecondOrder: includes quadratic salinity, halibaricity, and thermohaline term,
+                    ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * T * Z
+                           + R₂₀₀ * Sᴬ^2 - R₁₀₁ * Sᴬ * Z + R₁₁₀ * Sᴬ * Θ
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
@@ -211,6 +211,5 @@ SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
                                       R₁₀₁ = - 8.241e-6,
                                       R₁₁₀ = - 2.446e-3
                                      )
-
 
 end # module
