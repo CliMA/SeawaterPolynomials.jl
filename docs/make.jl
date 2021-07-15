@@ -3,7 +3,7 @@ using
   SeawaterPolynomials
 
 format = Documenter.HTML(
-    collapselevel = 1,
+    collapselevel = 2,
        prettyurls = get(ENV, "CI", nothing) == "true",
         canonical = "https://clima.github.io/SeawaterPolynomials/stable/",
        mathengine = MathJax3()
@@ -20,6 +20,7 @@ makedocs(
   
       pages = Any[
               "Home" => "index.md",
+              "API" => "API.md",
                  ]
 )
 
