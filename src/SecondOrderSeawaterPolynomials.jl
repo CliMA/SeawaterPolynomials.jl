@@ -19,18 +19,18 @@ depth `Z` for seawater density.
 The coefficients have the form
 
 ```math
-Rᵦᵪᵩ
+R_ᵦᵪᵩ ,
 ```
 
-where `β, χ, φ` denote the order of the term to which the coefficent corresponds:
-`β` is the polynomial order of absolute salinity, `Sᴬ`, `χ` is the polynomial order
-of conservative temperature, `Θ`, and `φ` is the order of geopotential height, `Z`.
+where ``β, χ, φ`` denote the order of the term to which the coefficent corresponds:
+``β`` is the polynomial order of absolute salinity, ``Sᴬ``, ``χ`` is the polynomial order
+of conservative temperature, ``Θ``, and ``φ`` is the order of geopotential height, ``Z``.
 
-For a `SecondOrderSeawaterPolynomial`, `β + χ + φ < 3`.
+For a `SecondOrderSeawaterPolynomial`, ``β + χ + φ < 3``.
 
-The coefficient `R₁₁₀` arises in the seawater polynomial as
+The coefficient ``R₁₁₀`` arises in the seawater polynomial as
 
-```math
+```
 seawater_polynomial(Θ, Sᴬ, Z) = ⋯ + R₁₁₀ * Sᴬ * Θ + ⋯
 ```
 """
@@ -69,8 +69,7 @@ const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
 Returns a `SecondOrderSeawaterPolynomial` with coefficients optimized by
 
-> Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", 
-  Journal of Physical Oceanography (2015).
+> Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015).
 
 The `coefficient_set` is a symbol or string that selects one of the "sets" of 
 optimized second order coefficients. 
@@ -78,28 +77,27 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-    - `:Linear`: a linear equation of state, `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ`
+    - :Linear: a linear equation of state, ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ
 
-    - `:Cabbeling`: includes quadratic temperature term,
-                    `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2`
+    - :Cabbeling: includes quadratic temperature term,
+                  ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2
 
-    - `:CabbelingThermobaricity`: includes 'thermobaricity' term,
-                                   `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * Θ * Z`
+    - :CabbelingThermobaricity: includes 'thermobaricity' term,
+                                ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * Θ * Z
 
-    - `:Freezing`: same as `:cabbeling_thermobaricity` with modified constants to increase
+    - :Freezing: same as :cabbeling_thermobaricity with modified constants to increase
                    accuracy near freezing
 
-    - `:SecondOrder`: includes quadratic salinity, halibaricity, and thermohaline term,
-                       `ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * T * Z`
-                             + R₂₀₀ * Sᴬ^2 - R₁₀₁ * Sᴬ * Z + R₁₁₀ * Sᴬ * Θ`
+    - :SecondOrder: includes quadratic salinity, halibaricity, and thermohaline term,
+                    ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * T * Z
+                           + R₂₀₀ * Sᴬ^2 - R₁₀₁ * Sᴬ * Z + R₁₁₀ * Sᴬ * Θ
 
-The optimized coefficients are reported in 
-Table 3 of Roquet et al., "Defining a Simplified yet 'Realistic' 
-Equation of State for Seawater", Journal of Physical Oceanography (2015), and
-further discussed around equations (12)--(15). The optimization minimizes
-errors in estimated horizontal density gradient estiamted from climatological temperature
-and salinity distributions between the 5 simplified forms chosen by Roquet et. al
-and the full-fledged [TEOS-10](http://www.teos-10.org) equation of state.
+The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
+yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
+further discussed around equations (12)--(15). The optimization minimizes errors in estimated
+horizontal density gradient estiamted from climatological temperature and salinity distributions
+between the 5 simplified forms chosen by Roquet et. al and the full-fledged
+[TEOS-10](http://www.teos-10.org) equation of state.
 """
 RoquetSeawaterPolynomial(FT::DataType, coefficient_set=:SecondOrder) =
     eval(Symbol(coefficient_set, :RoquetSeawaterPolynomial))(FT)
@@ -111,23 +109,20 @@ RoquetSeawaterPolynomial(coefficient_set=:SecondOrder) =
 """
     RoquetEquationOfState([FT=Float64,] coefficient_set=:SecondOrder; reference_density=1024.6)
 
-Returns an `BoussinesqEquationOfState` with a `RoquetSeawaterPolynomial` corresponding to `coefficient_set`
-and with `reference density = 1024.6 kg m⁻³`, the average density of seawater
+Returns an `BoussinesqEquationOfState` with a `RoquetSeawaterPolynomial` corresponding to
+`coefficient_set` and with `reference density = 1024.6 kg m⁻³`, the average density of seawater
 at the surface of the world ocean.
 
 Type
 
 ```julia
-
 help?> RoquetSeawaterPolynomial
-
 ```
 
 for options for the `coefficient_set`. The optimzed coefficient sets for the 
 `RoquetSeawaterPolynomial` are listed in Table 3 in
 
-> Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", 
-  Journal of Physical Oceanography (2015).
+> Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015).
 """
 RoquetEquationOfState(FT::DataType, coefficient_set=:SecondOrder; reference_density=1024.6) =
     BoussinesqEquationOfState(RoquetSeawaterPolynomial(FT, coefficient_set), reference_density)
@@ -216,6 +211,5 @@ SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
                                       R₁₀₁ = - 8.241e-6,
                                       R₁₁₀ = - 2.446e-3
                                      )
-
 
 end # module
