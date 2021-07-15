@@ -41,7 +41,7 @@ Returns the thermal expansion coefficient,
 
 ```math
 α = - ∂ρ / ∂Θ ,
-````
+```
 
 for a seawater parcel with conservative tempertuare `Θ`, absolute salinity `Sᴬ`, at the
 geopotential height `Z`, and using the Boussinesq `equation_of_state`. The thermal expansion
