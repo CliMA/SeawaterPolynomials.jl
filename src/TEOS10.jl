@@ -65,7 +65,7 @@ const ΔS  = 32.0
 
 @inline τ(Θ) = Θ / Θᵤ
 @inline s(Sᴬ) = √((Sᴬ + ΔS) / Sₐᵤ)
-@inline ζ(Z) = Z / Zᵤ
+@inline ζ(Z) = - Z / Zᵤ
 
 #####
 ##### Vertical reference profile of density
