@@ -1,6 +1,6 @@
 name = "SeawaterPolynomials"
 uuid = "d496a93d-167e-4197-9f49-d3af4ff8fe40"
-version = "0.2.2"
+version = "0.2.3"
 
 [compat]
 julia = "^1"
