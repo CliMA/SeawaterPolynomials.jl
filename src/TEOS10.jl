@@ -6,7 +6,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ′, thermal_expansion, haline_contraction
+import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
 
 #####
 ##### The TEOS-10 polynomial approximation implemented in this file has been translated
@@ -19,6 +19,9 @@ import SeawaterPolynomials: ρ′, thermal_expansion, haline_contraction
 A 55-term polynomial approximation to the TEOS-10 standard equation of state for seawater.
 """
 struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
+
+Base.eltype(::TEOS10SeawaterPolynomial{FT}) where FT = FT
+Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomial{$FT}"
 
 """
     TEOS10SeawaterPolynomial(FT=Float64)
@@ -47,7 +50,7 @@ Note that according to Roquet et al. (2015):
 
 > "In a Boussinesq model, the choice of the ρ₀ value is important, yet it varies significantly among OGCMs, as it is a matter of personal preference."
 """
-TEOS10EquationOfState(FT=Float64; reference_density=1020) =
+TEOS10EquationOfState(FT=Float64; reference_density=FT(1020)) =
     BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(), reference_density)
 
 #####
@@ -158,11 +161,11 @@ const R₀₁₃ =  3.7969820455e-01
 @inline r′(τ, s, ζ) = ((r′₃(τ, s) * ζ + r′₂(τ, s)) * ζ + r′₁(τ, s)) * ζ + r′₀(τ, s)
 
 #####
-##### Full density
+##### Density perturbation
 #####
 
 """
-    ρ′(Θ, Sᴬ, Z, ::BoussinesqEquationOfState{<:TEOS10EquationOfState})
+    ρ(Θ, Sᴬ, Z, ::BoussinesqEquationOfState{<:TEOS10EquationOfState})
 
 Returns the in-situ density of seawater with state `(Θ, Sᴬ, Z)` using the 55-term polynomial
 approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
@@ -179,9 +182,10 @@ approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
-@inline ρ′(Θ, Sᴬ, Z, ::EOS₁₀) = _ρ′(τ(Θ), s(Sᴬ), ζ(Z))
+@inline ρ(Θ, Sᴬ, Z, ::EOS₁₀) = _ρ(τ(Θ), s(Sᴬ), ζ(Z))
+@inline ρ′(Θ, Sᴬ, Z, eos::EOS₁₀) = ρ(Θ, Sᴬ, Z, eos) - eos.reference_density 
 
-@inline _ρ′(τ, s, ζ) = r₀(ζ) + r′(τ, s, ζ)
+@inline _ρ(τ, s, ζ) = r₀(ζ) + r′(τ, s, ζ)
 
 #####
 ##### Thermal expansion fit
@@ -224,7 +228,7 @@ const α₀₁₂ =  6.2099915132e-02
 const α₀₀₃ = -9.4924551138e-03
 
 """
-    thermal_expansion(Θ, Sᴬ, Z, ::TEOS10)
+    thermal_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
 
 Returns the Boussinesq thermal expansion coefficient ``-∂ρ/∂Θ`` [kg/m³/K] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
@@ -235,15 +239,15 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
     Z: geopotential depth [m]
 
 # Output
-    α: Boussinesq thermal expansion coefficient -∂ρ/∂Θ [kg/m³/K]
+    a: Boussinesq thermal expansion coefficient -∂ρ/∂Θ [kg/m³/K]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
-@inline thermal_expansion(Θ, Sᴬ, Z, ::EOS₁₀) = _α(τ(Θ), s(Sᴬ), ζ(Z))
+@inline thermal_sensitivity(Θ, Sᴬ, Z, ::EOS₁₀) = _a(τ(Θ), s(Sᴬ), ζ(Z))
 
-@inline _α(τ, s, ζ) =
+@inline _a(τ, s, ζ) =
     ((α₀₀₃ * ζ + α₀₁₂ * τ + α₁₀₂ * s + α₀₀₂) * ζ +
      ((α₀₃₁ * τ + α₁₂₁ * s + α₀₂₁) * τ +
       (α₂₁₁ * s + α₁₁₁) * s + α₀₁₁) * τ +
@@ -295,7 +299,7 @@ const β₀₁₂ = -2.6514181169e-03
 const β₀₀₃ = -2.3025968587e-04
 
 """
-    haline_contraction(Θ, Sᴬ, Z, ::TEOS10)
+    haline_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
 
 Returns the Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
@@ -312,9 +316,9 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
-@inline haline_contraction(Θ, Sᴬ, Z, ::EOS₁₀) = _β(τ(Θ), s(Sᴬ), ζ(Z)) / s(Sᴬ)
+@inline haline_sensitivity(Θ, Sᴬ, Z, ::EOS₁₀) = _b(τ(Θ), s(Sᴬ), ζ(Z)) / s(Sᴬ)
 
-@inline _β(τ, s, ζ) =
+@inline _b(τ, s, ζ) =
     ((β₀₀₃ * ζ + β₀₁₂ * τ + β₁₀₂ * s + β₀₀₂) * ζ +
      ((β₀₃₁ * τ + β₁₂₁ * s + β₀₂₁) * τ +
       (β₂₁₁ * s + β₁₁₁) * s + β₀₁₁) * τ +

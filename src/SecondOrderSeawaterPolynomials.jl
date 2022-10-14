@@ -7,7 +7,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ′, thermal_expansion, haline_contraction
+import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
 
 """
     struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
@@ -46,6 +46,21 @@ end
 
 const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
+Base.eltype(::SecondOrderSeawaterPolynomial{FT}) where FT = FT
+Base.summary(::SecondOrderSeawaterPolynomial{FT}) where FT = "SecondOrderSeawaterPolynomial{$FT}"
+
+signstr(x) = sign(x) < 0 ? " - " : " + "
+
+function Base.show(io::IO, eos::SecondOrderSeawaterPolynomial)
+    print(io, eos.R₁₀₀, " Sᴬ")
+    print(io, signstr(eos.R₀₁₀), abs(eos.R₀₁₀), " Θ")
+    print(io, signstr(eos.R₁₀₁), abs(eos.R₁₀₁), " Θ²")
+    print(io, signstr(eos.R₀₁₁), abs(eos.R₀₁₁), " Θ Z")
+    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ²")
+    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Sᴬ Z")
+    print(io, signstr(eos.R₂₀₀), abs(eos.R₂₀₀), " Sᴬ Θ")
+end
+    
 @inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₁₀₀ * Sᴬ
                                    + eos.seawater_polynomial.R₀₁₀ * Θ
                                    + eos.seawater_polynomial.R₀₂₀ * Θ^2
@@ -54,12 +69,12 @@ const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
                                    - eos.seawater_polynomial.R₁₀₁ * Sᴬ * Z
                                    + eos.seawater_polynomial.R₁₁₀ * Sᴬ * Θ )
 
-@inline thermal_expansion(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₁₀
-                                                  + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
-                                                  -     eos.seawater_polynomial.R₀₁₁ * Z
-                                                  +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
+@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₁₀
+                                                    + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
+                                                    -     eos.seawater_polynomial.R₀₁₁ * Z
+                                                    +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
 
-@inline haline_contraction(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
+@inline haline_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
                                                    + 2 * eos.seawater_polynomial.R₂₀₀ * Sᴬ
                                                    -     eos.seawater_polynomial.R₁₀₁ * Z
                                                    +     eos.seawater_polynomial.R₁₁₀ * Θ )
@@ -139,10 +154,8 @@ temperature and salinity distribution.
 For more information, type `help?> RoquetSeawaterPolynomial`.
 """
 LinearRoquetSeawaterPolynomial(FT=Float64) =
-    SecondOrderSeawaterPolynomial{FT}(
-                                      R₀₁₀ = - 1.775e-1,
-                                      R₁₀₀ =   7.718e-1,
-                                     )
+    SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 1.775e-1,
+                                      R₁₀₀ =   7.718e-1)
 
 """
     CabbelingRoquetSeawaterPolynomial(FT=Float64)
@@ -153,11 +166,9 @@ optimized for the 'current' oceanic temperature and salinity distribution.
 For more information, type `help?> RoquetSeawaterPolynomial`.
 """
 CabbelingRoquetSeawaterPolynomial(FT=Float64) =
-    SecondOrderSeawaterPolynomial{FT}(
-                                      R₀₁₀ = - 0.844e-1,
+    SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 0.844e-1,
                                       R₁₀₀ =   7.718e-1,
-                                      R₀₂₀ = - 4.561e-3,
-                                     )
+                                      R₀₂₀ = - 4.561e-3)
 
 """
     CabbelingThermobaricityRoquetSeawaterPolynomial(FT=Float64)
@@ -169,12 +180,10 @@ distribution.
 For more information, type `help?> RoquetSeawaterPolynomial`.
 """
 CabbelingThermobaricityRoquetSeawaterPolynomial(FT=Float64) =
-    SecondOrderSeawaterPolynomial{FT}(
-                                      R₀₁₀ = - 0.651e-1,
+    SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 0.651e-1,
                                       R₁₀₀ =   7.718e-1,
                                       R₀₂₀ = - 5.027e-3,
-                                      R₀₁₁ = - 2.5681e-5,
-                                     )
+                                      R₀₁₁ = - 2.5681e-5)
 
 """
     FreezingRoquetSeawaterPolynomial(FT=Float64)
@@ -186,12 +195,10 @@ distribution.
 For more information, type `help?> RoquetSeawaterPolynomial`.
 """
 FreezingRoquetSeawaterPolynomial(FT=Float64) =
-    SecondOrderSeawaterPolynomial{FT}(
-                                      R₀₁₀ = - 0.491e-1,
+    SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 0.491e-1,
                                       R₁₀₀ =   7.718e-1,
                                       R₀₂₀ = - 5.027e-3,
-                                      R₀₁₁ = - 2.5681e-5,
-                                     )
+                                      R₀₁₁ = - 2.5681e-5)
 
 """
     SecondOrderRoquetSeawaterPolynomial(FT=Float64)
@@ -202,14 +209,12 @@ optimized for the 'current' oceanic temperature and salinity  distribution.
 For more information, type `help?> RoquetSeawaterPolynomial`.
 """
 SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
-    SecondOrderSeawaterPolynomial{FT}(
-                                      R₀₁₀ =   0.182e-1,
+    SecondOrderSeawaterPolynomial{FT}(R₀₁₀ =   0.182e-1,
                                       R₁₀₀ =   8.078e-1,
                                       R₀₂₀ = - 4.937e-3,
                                       R₀₁₁ = - 2.4677e-5,
                                       R₂₀₀ = - 1.115e-4,
                                       R₁₀₁ = - 8.241e-6,
-                                      R₁₁₀ = - 2.446e-3
-                                     )
+                                      R₁₁₀ = - 2.446e-3)
 
 end # module
