@@ -46,8 +46,8 @@ end
             eos = RoquetEquationOfState(FT)
 
             @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == 0
-            @test SeawaterPolynomials.haline_contraction(0, 0, 0, eos) == eos.seawater_polynomial.R₁₀₀
-            @test SeawaterPolynomials.thermal_expansion(0, 0, 0, eos) == eos.seawater_polynomial.R₀₁₀
+            @test SeawaterPolynomials.haline_sensitivity(0, 0, 0, eos) == eos.seawater_polynomial.R₁₀₀
+            @test SeawaterPolynomials.thermal_sensitivity(0, 0, 0, eos) == eos.seawater_polynomial.R₀₁₀
         end
     end
 
@@ -71,8 +71,8 @@ end
         @test SeawaterPolynomials.TEOS10.r₀(ζ) ≈ 4.59763035
         @test SeawaterPolynomials.TEOS10.r′(τ, s, ζ) ≈ 1022.85377
 
-        @test SeawaterPolynomials.TEOS10.ρ′(Θ, S, Z, eos) ≈ 1027.45140
-        @test SeawaterPolynomials.TEOS10.thermal_expansion(Θ, S, Z, eos) ≈ 0.179646281
-        @test SeawaterPolynomials.TEOS10.haline_contraction(Θ, S, Z, eos) ≈ 0.765555368
+        @test SeawaterPolynomials.TEOS10.ρ(Θ, S, Z, eos) ≈ 1027.45140
+        @test SeawaterPolynomials.TEOS10.thermal_sensitivity(Θ, S, Z, eos) ≈ 0.179646281
+        @test SeawaterPolynomials.TEOS10.haline_sensitivity(Θ, S, Z, eos) ≈ 0.765555368
     end
 end
