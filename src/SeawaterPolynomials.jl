@@ -123,7 +123,7 @@ downwards to negative values, towards the bottom of the ocean.
 """
     haline_contraction(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the "Boussinesq haline contraction coefficient" for a seawater parcel with reference
+Return the "Boussinesq haline contraction coefficient" for a seawater parcel with reference
 density `ρᵣ` and absolute salinity `Sᴬ`, at fixed conservative temperture `Θ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The haline contraction
 coefficient is defined as
