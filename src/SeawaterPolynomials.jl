@@ -100,7 +100,7 @@ const density_anomaly = ρ′
 """
     thermal_expansion(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the Boussinesq thermal expansion coefficient for a seawater parcel with reference
+Return the Boussinesq thermal expansion coefficient for a seawater parcel with reference
 density `ρᵣ` and conservative temperture `Θ`, at fixed absolute salinity `Sᴬ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The thermal expansion
 coefficient is defined as
