@@ -19,7 +19,7 @@ depth `Z` for seawater density.
 The coefficients have the form
 
 ```math
-R_ᵦᵪᵩ ,
+Rᵦᵪᵩ ,
 ```
 
 where ``β, χ, φ`` denote the order of the term to which the coefficent corresponds:
@@ -92,20 +92,19 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-    - :Linear: a linear equation of state, ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ
+- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ``
 
-    - :Cabbeling: includes quadratic temperature term,
-                  ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2
+- `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ + R₀₂₀ Θ²``
 
-    - :CabbelingThermobaricity: includes 'thermobaricity' term,
-                                ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * Θ * Z
+- `:CabbelingThermobaricity`: includes 'thermobaricity' term,
+                              ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ + R₀₂₀ Θ² - R₀₁₁ Θ Z``
 
-    - :Freezing: same as :cabbeling_thermobaricity with modified constants to increase
-                   accuracy near freezing
+- `:Freezing`: same as `:cabbeling_thermobaricity` with modified constants to increase
+               accuracy near freezing.
 
-    - :SecondOrder: includes quadratic salinity, halibaricity, and thermohaline term,
-                    ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * T * Z
-                           + R₂₀₀ * Sᴬ^2 - R₁₀₁ * Sᴬ * Z + R₁₁₀ * Sᴬ * Θ
+- `:SecondOrder`: includes quadratic salinity, halibaricity, and thermohaline term,
+                  ``ρ = ρᵣ + R₁₀₀ Sᴬ + R₀₁₀ Θ + R₀₂₀ Θ² - R₀₁₁ Θ Z
+                           + R₂₀₀ Sᴬ² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and

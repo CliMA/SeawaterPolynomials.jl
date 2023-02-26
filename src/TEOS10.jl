@@ -26,7 +26,7 @@ Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomia
 """
     TEOS10SeawaterPolynomial(FT=Float64)
 
-Returns an object representing a 55-term polynomial approximation to the TEOS-10 standard equation
+Return an object representing a 55-term polynomial approximation to the TEOS-10 standard equation
 of state for seawater. See
 
 > Roquet et al., "Accurate polynomial expressions for the density and specific volume of seawater using the TEOS-10 standard", Ocean Modelling (2015).
@@ -38,7 +38,7 @@ const EOS₁₀ = BoussinesqEquationOfState{<:TEOS10SeawaterPolynomial}
 """
     TEOS10EquationOfState(FT=Float64; reference_density=1020)
 
-Returns an `BoussinesqEquationOfState` with a `TEOS10SeawaterPolynomial` of float type `FT`
+Return an `BoussinesqEquationOfState` with a `TEOS10SeawaterPolynomial` of float type `FT`
 with `reference density = 1020 kg m⁻³`, the value used by 
 
 > Roquet et al., "Accurate polynomial expressions for the density and specific volume of seawater using the TEOS-10 standard", Ocean Modelling (2015).
@@ -48,7 +48,7 @@ See the discussion prior to equation 8 in Roquet et al. (2015).
 
 Note that according to Roquet et al. (2015):
 
-> "In a Boussinesq model, the choice of the ρ₀ value is important, yet it varies significantly among OGCMs, as it is a matter of personal preference."
+> "In a Boussinesq model, the choice of the ``ρ₀`` value is important, yet it varies significantly among OGCMs, as it is a matter of personal preference."
 """
 TEOS10EquationOfState(FT=Float64; reference_density=FT(1020)) =
     BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(), reference_density)
@@ -167,16 +167,16 @@ const R₀₁₃ =  3.7969820455e-01
 """
     ρ(Θ, Sᴬ, Z, ::BoussinesqEquationOfState{<:TEOS10EquationOfState})
 
-Returns the in-situ density of seawater with state `(Θ, Sᴬ, Z)` using the 55-term polynomial
+Return the in-situ density of seawater with state `(Θ, Sᴬ, Z)` using the 55-term polynomial
 approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
-    Θ: conservative temperature (ITS-90) [°C]
-    Sᴬ: absolute salinity [g/kg]
-    Z: geopotential depth [m]
+- `Θ`: conservative temperature (ITS-90) [°C]
+- `Sᴬ`: absolute salinity [g/kg]
+- `Z`: geopotential depth [m]
 
 # Output
-    ρ: in-situ density [kg/m³]
+- `ρ`: in-situ density [kg/m³]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
@@ -230,16 +230,16 @@ const α₀₀₃ = -9.4924551138e-03
 """
     thermal_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
 
-Returns the Boussinesq thermal expansion coefficient ``-∂ρ/∂Θ`` [kg/m³/K] computed using
+Return the Boussinesq thermal expansion coefficient ``-∂ρ/∂Θ`` [kg/m³/K] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
-    Θ: conservative temperature (ITS-90) [°C]
-    Sᴬ: absolute salinity [g/kg]
-    Z: geopotential depth [m]
+- `Θ`: conservative temperature (ITS-90) [°C]
+- `Sᴬ`: absolute salinity [g/kg]
+- `Z`: geopotential depth [m]
 
 # Output
-    a: Boussinesq thermal expansion coefficient -∂ρ/∂Θ [kg/m³/K]
+- `a`: Boussinesq thermal expansion coefficient ``-∂ρ/∂Θ`` [kg/m³/K]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
@@ -301,16 +301,16 @@ const β₀₀₃ = -2.3025968587e-04
 """
     haline_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
 
-Returns the Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)] computed using
+Return the Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
-    Θ: conservative temperature (ITS-90) [°C]
-    Sᴬ: absolute salinity [g/kg]
-    Z: geopotential depth [m]
+- `Θ`: conservative temperature (ITS-90) [°C]
+- `Sᴬ`: absolute salinity [g/kg]
+- `Z`: geopotential depth [m]
 
 # Output
-    β: Boussinesq haline contraction coefficient ∂ρ/∂Sᴬ [kg/m³/(g/kg)]
+- `β`: Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
