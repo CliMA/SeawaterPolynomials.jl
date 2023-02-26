@@ -3,7 +3,7 @@ module SeawaterPolynomials
 """
     thermal_sensitivity(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the "Boussinesq thermal expansion coefficient" for a seawater parcel with
+Return the "Boussinesq thermal expansion coefficient" for a seawater parcel with
 conservative temperature `Θ`, at fixed absolute salinity `Sᴬ`, and geopotential height `Z`
 using the Boussinesq `equation_of_state`. The thermal expansion coefficient is
 
