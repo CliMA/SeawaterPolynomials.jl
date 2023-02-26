@@ -103,7 +103,7 @@ const density_anomaly = ρ′
 Return the "Boussinesq thermal expansion coefficient" for a seawater parcel with reference
 density `ρᵣ` and conservative temperture `Θ`, at fixed absolute salinity `Sᴬ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The thermal expansion
-coefficient is defined as
+coefficient is
 
 ```math
 α(Θ, Sᴬ, Z) = - \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
@@ -126,7 +126,7 @@ downwards to negative values, towards the bottom of the ocean.
 Return the "Boussinesq haline contraction coefficient" for a seawater parcel with reference
 density `ρᵣ` and absolute salinity `Sᴬ`, at fixed conservative temperture `Θ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The haline contraction
-coefficient is defined as
+coefficient is
 
 ```math
 β(Θ, Sᴬ, Z) = \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z},
