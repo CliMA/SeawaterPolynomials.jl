@@ -100,7 +100,7 @@ const density_anomaly = ρ′
 """
     thermal_expansion(Θ, Sᴬ, Z, equation_of_state)
 
-Return the Boussinesq thermal expansion coefficient for a seawater parcel with reference
+Return the "Boussinesq thermal expansion coefficient" for a seawater parcel with reference
 density `ρᵣ` and conservative temperture `Θ`, at fixed absolute salinity `Sᴬ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The thermal expansion
 coefficient is defined as
@@ -134,7 +134,7 @@ coefficient is defined as
 
 and describes changes in seawater density due to changes in absolute salinity.
 'Haline contraction' is so named because, due to sign convention, positive values reflect increasing
-seawater density with increasing absolute salinity, and thus a slight `contraction' of oceanic
+seawater density with increasing absolute salinity, and thus a slight 'contraction' of oceanic
 fluid parcels.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
