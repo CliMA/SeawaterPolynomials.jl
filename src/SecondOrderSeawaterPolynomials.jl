@@ -104,7 +104,7 @@ Coefficient sets
 
 - `:SecondOrder`: includes quadratic salinity, halibaricity, and thermohaline term,
                   ``ρ = ρᵣ + R₁₀₀ Sᴬ + R₀₁₀ Θ + R₀₂₀ Θ² - R₀₁₁ Θ Z
-                           + R₂₀₀ Sᴬ² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
+                           + R₂₀₀ (Sᴬ)² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
