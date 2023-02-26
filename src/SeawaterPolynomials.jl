@@ -84,7 +84,7 @@ This function aliases `total_density`.
 """
     ρ′(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the density anomaly of a seawater parcel with conservative tempertuare `Θ`, absolute
+Return the density anomaly of a seawater parcel with conservative temperature `Θ`, absolute
 salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
