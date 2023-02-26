@@ -27,7 +27,7 @@ function thermal_sensitivity end
 
 Returns the "Boussinesq haline contraction coefficient" for a seawater parcel with absolute
 salinity `Sᴬ`, at fixed conservative tempertuare `Θ` and geopotential height `Z`, using
-the Boussinesq `equation_of_state`. The haline contraction coefficient is defined as
+the Boussinesq `equation_of_state`. The haline contraction coefficient is
 
 ```math
 β(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
