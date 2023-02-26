@@ -3,15 +3,15 @@ module SeawaterPolynomials
 """
     thermal_sensitivity(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the "Boussinesq thermal expansion coefficient" defined as,
+Returns the "Boussinesq thermal expansion coefficient" for a seawater parcel with
+conservative tempertuare `Θ`, at fixed absolute salinity `Sᴬ` and geopotential height `Z`
+using the Boussinesq `equation_of_state`. The thermal expansion coefficient is defined as,
 
 ```math
-α = - ∂ρ / ∂Θ ,
+α(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
 ```
 
-for a seawater parcel with conservative tempertuare `Θ`, absolute salinity `Sᴬ`, at the
-geopotential height `Z`, and using the Boussinesq `equation_of_state`. The thermal expansion
-coefficient measures how much seawater density changes when conservative temperature is changed.
+and measures how much seawater density changes when conservative temperature is changed.
 'Thermal expansion' is so named because, due to sign convention, positive values reflect decreasing
 seawater density with increasing conservative temperature, and thus an 'expansion' of oceanic
 fluid parcels. In many, but not all conditions in Earth's ocean (at temperatures greater than
@@ -25,17 +25,17 @@ function thermal_sensitivity end
 """
     haline_sensitivity(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the "Boussinesq haline contraction coefficient" defined as
+Returns the "Boussinesq haline contraction coefficient" for a seawater parcel with absolute
+salinity `Sᴬ`, at fixed conservative tempertuare `Θ` and geopotential height `Z`, using
+the Boussinesq `equation_of_state`. The haline contraction coefficient is defined as
 
 ```math
-β = ∂ρ / ∂Sᴬ ,
+β(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
 ```
 
-for a seawater parcel with absolute salinity `Sᴬ` and at fixed conservative tempertuare `Θ`
-and geopotential height `Z`, using the Boussinesq `equation_of_state`. The haline contraction
-coefficient measures how much seawater density changes when absolute salinity is changed.
+and measures how much seawater density changes when absolute salinity is changed.
 'Haline contraction' is so named because, due to sign convention, positive values reflect increasing
-seawater density with increasing absolute salinity, and thus a slight `contraction' of oceanic
+seawater density with increasing absolute salinity, and thus a slight 'contraction' of oceanic
 fluid parcels.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
@@ -74,7 +74,7 @@ end
 Returns the total density of a seawater parcel with conservative tempertuare `Θ`, absolute
 salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
 
-The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases* 
+The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
 
 This function aliases `total_density`.
@@ -84,10 +84,10 @@ This function aliases `total_density`.
 """
     ρ′(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the total density of a seawater parcel with conservative tempertuare `Θ`, absolute
+Returns the density anomaly of a seawater parcel with conservative tempertuare `Θ`, absolute
 salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
 
-The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases* 
+The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
 
 The function aliases `density_anomaly`.
@@ -100,16 +100,16 @@ const density_anomaly = ρ′
 """
     thermal_expansion(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the Boussinesq thermal expansion coefficient,
+Returns the Boussinesq thermal expansion coefficient for a seawater parcel with reference
+density `ρᵣ` and conservative temperture `Θ`, at fixed absolute salinity `Sᴬ` and
+geopotential height `Z`, using the Boussinesq `equation_of_state`. The thermal expansion
+coefficient is defined as
 
 ```math
-α = - ρᵣ⁻¹ ∂ρ / ∂Θ ,
+α(Θ, Sᴬ, Z) = - \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
 ```
 
-for a seawater parcel with reference density `ρᵣ` and conservative temperture `Θ`,
-at fixed absolute salinity `Sᴬ` and geopotential height `Z`,
-using the Boussinesq `equation_of_state`. The thermal expansion coefficient
-describes seawater density changes due to changes in conservative temperature.
+and describes seawater density changes due to changes in conservative temperature.
 'Thermal expansion' is so named because, due to sign convention, positive values reflect decreasing
 seawater density with increasing conservative temperature, and thus an 'expansion' of oceanic
 fluid parcels. In many, but not all conditions in Earth's ocean (at temperatures greater than
@@ -123,16 +123,16 @@ downwards to negative values, towards the bottom of the ocean.
 """
     haline_contraction(Θ, Sᴬ, Z, equation_of_state)
 
-Returns the "Boussinesq haline contraction coefficient" defined as
+Returns the "Boussinesq haline contraction coefficient" for a seawater parcel with reference
+density `ρᵣ` and absolute salinity `Sᴬ`, at fixed conservative temperture `Θ` and
+geopotential height `Z`, using the Boussinesq `equation_of_state`. The haline contraction
+coefficient is defined as
 
 ```math
-β = ρᵣ⁻¹ ∂ρ / ∂Sᴬ ,
+β(Θ, Sᴬ, Z) = \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z},
 ```
 
-for a seawater parcel with reference density `ρᵣ` and absolute salinity `Sᴬ`, 
-at fixed conservative temperture `Θ` and geopotential height `Z`,
-using the Boussinesq `equation_of_state`. The haline contraction coefficient 
-describes changes in seawater density due to changes in absolute salinity.
+and describes changes in seawater density due to changes in absolute salinity.
 'Haline contraction' is so named because, due to sign convention, positive values reflect increasing
 seawater density with increasing absolute salinity, and thus a slight `contraction' of oceanic
 fluid parcels.
