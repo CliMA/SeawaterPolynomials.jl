@@ -30,3 +30,6 @@ docs/Manifest.toml
 *.DS_Store
 
 .swp
+
+# vscode
+.vscode

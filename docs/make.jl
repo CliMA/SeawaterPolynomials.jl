@@ -17,7 +17,7 @@ makedocs(
      format = format,
     authors = "Gregory L. Wagner and Ali Ramadhan",
    sitename = "SeawaterPolynomials.jl",
-  
+
       pages = Any[
               "Home" => "index.md",
               "API" => "API.md",
