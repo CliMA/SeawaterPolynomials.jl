@@ -25,7 +25,7 @@ makedocs(
 )
 
 deploydocs(
-          repo = "github.com/CliMA/OceananigansDocumentation.git",
+          repo = "github.com/CliMA/SeawaterPolynomials.jl.git",
       versions = ["stable" => "v^", "v#.#.#", "dev" => "dev"],
      forcepush = true,
   push_preview = true,
