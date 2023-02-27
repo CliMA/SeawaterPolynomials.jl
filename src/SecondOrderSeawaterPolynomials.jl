@@ -92,12 +92,12 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ``
+- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ``.
 
-- `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ²``
+- `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ²``.
 
 - `:CabbelingThermobaricity`: includes 'thermobaricity' term,
-                              ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ² - R₀₁₁ Θ Z``
+                              ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ² - R₀₁₁ Θ Z``.
 
 - `:Freezing`: same as `:cabbeling_thermobaricity` with modified constants to increase
                accuracy near freezing.
