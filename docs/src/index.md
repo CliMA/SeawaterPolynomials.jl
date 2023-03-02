@@ -17,7 +17,7 @@ One choice for ``ρ_r`` is the average density at the surface of the world ocean
 
 ## The TEOS-10 standard
 
-The [Thermodynamic Equation of SeaWater (TEOS-10)](http://www.teos-10.org) is a Gibbs function formulation of seawater themodynamics.
+The [Thermodynamic Equation of SeaWater (TEOS-10)](http://www.teos-10.org) is a Gibbs function formulation of seawater thermodynamics.
 
 The error between the polynomials implemented in this package and the TEOS-10 is minimized for current 'climatological' ocean distributions of conservative temperature and absolute salinity. For more information, see
 

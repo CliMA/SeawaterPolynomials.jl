@@ -19,7 +19,7 @@ depth `Z` for seawater density.
 The coefficients have the form
 
 ```math
-R_ᵦᵪᵩ ,
+Rᵦᵪᵩ ,
 ```
 
 where ``β, χ, φ`` denote the order of the term to which the coefficent corresponds:
@@ -82,7 +82,7 @@ end
 """
     RoquetSeawaterPolynomial([FT=Float64,] coefficient_set=:SecondOrder)
 
-Returns a `SecondOrderSeawaterPolynomial` with coefficients optimized by
+Return a `SecondOrderSeawaterPolynomial` with coefficients optimized by
 
 > Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015).
 
@@ -92,20 +92,19 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-    - :Linear: a linear equation of state, ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ
+- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ``.
 
-    - :Cabbeling: includes quadratic temperature term,
-                  ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2
+- `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ²``.
 
-    - :CabbelingThermobaricity: includes 'thermobaricity' term,
-                                ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * Θ * Z
+- `:CabbelingThermobaricity`: includes 'thermobaricity' term,
+                              ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ² - R₀₁₁ Θ Z``.
 
-    - :Freezing: same as :cabbeling_thermobaricity with modified constants to increase
-                   accuracy near freezing
+- `:Freezing`: same as `:cabbeling_thermobaricity` with modified constants to increase
+               accuracy near freezing.
 
-    - :SecondOrder: includes quadratic salinity, halibaricity, and thermohaline term,
-                    ρ = ρᵣ + R₁₀₀ * Θ + R₀₁₀ * Sᴬ + R₀₂₀ * Θ^2 - R₀₁₁ * T * Z
-                           + R₂₀₀ * Sᴬ^2 - R₁₀₁ * Sᴬ * Z + R₁₁₀ * Sᴬ * Θ
+- `:SecondOrder`: includes quadratic salinity, halibaricity, and thermohaline term,
+                  ``ρ = ρᵣ + R₁₀₀ Sᴬ + R₀₁₀ Θ + R₀₂₀ Θ² - R₀₁₁ Θ Z
+                           + R₂₀₀ (Sᴬ)² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
@@ -124,18 +123,12 @@ RoquetSeawaterPolynomial(coefficient_set=:SecondOrder) =
 """
     RoquetEquationOfState([FT=Float64,] coefficient_set=:SecondOrder; reference_density=1024.6)
 
-Returns an `BoussinesqEquationOfState` with a `RoquetSeawaterPolynomial` corresponding to
+Return an `BoussinesqEquationOfState` with a `RoquetSeawaterPolynomial` corresponding to
 `coefficient_set` and with `reference density = 1024.6 kg m⁻³`, the average density of seawater
 at the surface of the world ocean.
 
-Type
-
-```julia
-help?> RoquetSeawaterPolynomial
-```
-
-for options for the `coefficient_set`. The optimzed coefficient sets for the 
-`RoquetSeawaterPolynomial` are listed in Table 3 in
+See [`RoquetSeawaterPolynomial`](@ref) for options for the `coefficient_set`.
+The optimzed coefficient sets for the `RoquetSeawaterPolynomial` are listed in Table 3 in
 
 > Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015).
 """
@@ -146,24 +139,24 @@ RoquetEquationOfState(coefficient_set=:SecondOrder; reference_density=1024.6) =
     RoquetEquationOfState(Float64, coefficient_set, reference_density=1024.6)
 
 """
-    LinearRoquetSeawaterPolynomial(FT=Float64)
+    LinearRoquetSeawaterPolynomial([FT=Float64])
 
 Parameters for a linear equation of state optimized for the 'current' oceanic
 temperature and salinity distribution.
 
-For more information, type `help?> RoquetSeawaterPolynomial`.
+For more information see [`RoquetSeawaterPolynomial`](@ref).
 """
 LinearRoquetSeawaterPolynomial(FT=Float64) =
     SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 1.775e-1,
                                       R₁₀₀ =   7.718e-1)
 
 """
-    CabbelingRoquetSeawaterPolynomial(FT=Float64)
+    CabbelingRoquetSeawaterPolynomial([FT=Float64])
 
 Parameters for a minimal equation of state that describes cabbeling,
 optimized for the 'current' oceanic temperature and salinity distribution.
 
-For more information, type `help?> RoquetSeawaterPolynomial`.
+For more information see [`RoquetSeawaterPolynomial`](@ref).
 """
 CabbelingRoquetSeawaterPolynomial(FT=Float64) =
     SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 0.844e-1,
@@ -171,13 +164,13 @@ CabbelingRoquetSeawaterPolynomial(FT=Float64) =
                                       R₀₂₀ = - 4.561e-3)
 
 """
-    CabbelingThermobaricityRoquetSeawaterPolynomial(FT=Float64)
+    CabbelingThermobaricityRoquetSeawaterPolynomial([FT=Float64])
 
 Parameters for a minimal equation of state that describes cabbeling and thermobaric
 effects on sewater density, optimized for the 'current' oceanic temperature and salinity 
 distribution.
 
-For more information, type `help?> RoquetSeawaterPolynomial`.
+For more information see [`RoquetSeawaterPolynomial`](@ref).
 """
 CabbelingThermobaricityRoquetSeawaterPolynomial(FT=Float64) =
     SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 0.651e-1,
@@ -192,7 +185,7 @@ Parameters for a minimal equation of state that describes seawater density near 
 freezing point, optimized for the 'current' oceanic temperature and salinity 
 distribution.
 
-For more information, type `help?> RoquetSeawaterPolynomial`.
+For more information see [`RoquetSeawaterPolynomial`](@ref).
 """
 FreezingRoquetSeawaterPolynomial(FT=Float64) =
     SecondOrderSeawaterPolynomial{FT}(R₀₁₀ = - 0.491e-1,
@@ -201,12 +194,12 @@ FreezingRoquetSeawaterPolynomial(FT=Float64) =
                                       R₀₁₁ = - 2.5681e-5)
 
 """
-    SecondOrderRoquetSeawaterPolynomial(FT=Float64)
+    SecondOrderRoquetSeawaterPolynomial([FT=Float64])
 
 Parameters for a fully second-order equation of state for seawater,
 optimized for the 'current' oceanic temperature and salinity  distribution.
 
-For more information, type `help?> RoquetSeawaterPolynomial`.
+For more information see [`RoquetSeawaterPolynomial`](@ref).
 """
 SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
     SecondOrderSeawaterPolynomial{FT}(R₀₁₀ =   0.182e-1,

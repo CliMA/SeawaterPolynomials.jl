@@ -15,7 +15,7 @@ makedocs(
       clean = true,
    checkdocs = :all,
      format = format,
-    authors = "Gregory L. Wagner and Ali Ramadhan",
+    authors = "Climate Modeling Alliance and contributors",
    sitename = "SeawaterPolynomials.jl",
 
       pages = Any[
@@ -25,7 +25,9 @@ makedocs(
 )
 
 deploydocs(
-        repo = "github.com/CliMA/SeawaterPolynomials.jl.git",
-    versions = ["stable" => "v^", "v#.#", "dev" => "dev"],
-push_preview = true
+          repo = "github.com/CliMA/SeawaterPolynomials.jl.git",
+      versions = ["stable" => "v^", "v#.#.#", "dev" => "dev"],
+     forcepush = true,
+  push_preview = true,
+     devbranch = "main"
 )
