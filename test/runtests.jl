@@ -1,4 +1,4 @@
-using 
+using
     Test,
     SeawaterPolynomials,
     SeawaterPolynomials.SecondOrderSeawaterPolynomials,
@@ -32,13 +32,14 @@ end
 
 @testset "Second-order seawater polynomials" begin
     for coefficient_set in (
-                            :Linear, 
+                            :Linear,
                             :Cabbeling,
                             :CabbelingThermobaricity,
                             :Freezing,
-                            :SecondOrder
+                            :SecondOrder,
+                            :SimplifiedRealistic
                            )
-    
+
         for FT in (Float64, Float32)
             @test instantiate_roquet_polynomial(FT, coefficient_set)
             @test instantiate_roquet_equation_of_state(FT, coefficient_set)
