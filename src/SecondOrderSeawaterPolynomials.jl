@@ -145,7 +145,7 @@ RoquetEquationOfState(FT::DataType, coefficient_set=:SecondOrder; reference_dens
     BoussinesqEquationOfState(RoquetSeawaterPolynomial(FT, coefficient_set), reference_density)
 
 RoquetEquationOfState(coefficient_set=:SecondOrder; reference_density=1024.6) =
-    RoquetEquationOfState(Float64, coefficient_set, reference_density)
+    RoquetEquationOfState(Float64, coefficient_set; reference_density)
 
 """
     LinearRoquetSeawaterPolynomial([FT=Float64])
