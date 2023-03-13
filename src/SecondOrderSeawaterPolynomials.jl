@@ -53,14 +53,14 @@ Base.summary(::SecondOrderSeawaterPolynomial{FT}) where FT = "SecondOrderSeawate
 signstr(x) = sign(x) < 0 ? " - " : " + "
 
 function Base.show(io::IO, eos::SecondOrderSeawaterPolynomial)
-    print(io, signstr(eos.R₀₀₀), abs(eos.R₀₀₀), " ")
-    print(io, eos.R₁₀₀, " Sᴬ")
+    print(io, eos.R₀₀₀, "")
+    print(io, signstr(eos.R₁₀₀), abs(eos.R₁₀₀), " Sᴬ")
     print(io, signstr(eos.R₀₁₀), abs(eos.R₀₁₀), " Θ")
-    print(io, signstr(eos.R₁₀₁), abs(eos.R₁₀₁), " Θ²")
+    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Θ²")
     print(io, signstr(eos.R₀₁₁), abs(eos.R₀₁₁), " Θ Z")
-    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ²")
-    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Sᴬ Z")
-    print(io, signstr(eos.R₂₀₀), abs(eos.R₂₀₀), " Sᴬ Θ")
+    print(io, signstr(eos.R₂₀₀), abs(eos.R₂₀₀), " Sᴬ²")
+    print(io, signstr(eos.R₁₀₁), abs(eos.R₁₀₁), " Sᴬ Z")
+    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ Θ")
 end
 
 @inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₀₀₀
