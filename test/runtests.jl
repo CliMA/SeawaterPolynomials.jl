@@ -37,7 +37,7 @@ end
                             :CabbelingThermobaricity,
                             :Freezing,
                             :SecondOrder,
-                            :SimplifiedRealistic
+                            :SimplestRealistic
                            )
 
         for FT in (Float64, Float32)
