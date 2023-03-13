@@ -48,9 +48,9 @@ end
 
             @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == eos.seawater_polynomial.R₀₀₀
             @test SeawaterPolynomials.haline_sensitivity(0, 0, 0, eos) ==
-                    eos.seawater_polynomial.R₀₀₀ + eos.seawater_polynomial.R₁₀₀
+                    eos.seawater_polynomial.R₁₀₀
             @test SeawaterPolynomials.thermal_sensitivity(0, 0, 0, eos) ==
-                    eos.seawater_polynomial.R₀₀₀ + eos.seawater_polynomial.R₀₁₀
+                    eos.seawater_polynomial.R₀₁₀
         end
     end
 

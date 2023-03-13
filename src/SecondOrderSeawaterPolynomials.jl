@@ -72,14 +72,12 @@ end
                                    - eos.seawater_polynomial.R₁₀₁ * Sᴬ * Z
                                    + eos.seawater_polynomial.R₁₁₀ * Sᴬ * Θ )
 
-@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₀₀
-                                                    +     eos.seawater_polynomial.R₀₁₀
+@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₁₀
                                                     + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
                                                     -     eos.seawater_polynomial.R₀₁₁ * Z
                                                     +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
 
-@inline haline_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₀₀
-                                                   +     eos.seawater_polynomial.R₁₀₀
+@inline haline_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
                                                    + 2 * eos.seawater_polynomial.R₂₀₀ * Sᴬ
                                                    -     eos.seawater_polynomial.R₁₀₁ * Z
                                                    +     eos.seawater_polynomial.R₁₁₀ * Θ )
