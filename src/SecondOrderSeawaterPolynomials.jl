@@ -230,9 +230,9 @@ For more information see [`RoquetSeawaterPolynomial`](@ref).
 """
 function SimplestRealisticRoquetSeawaterPolynomial(FT=Float64)
 
-    Cb = 0.011   # kgm⁻³K⁻²
-    Tₕ = 2.5e-5  # kgm⁻⁴K⁻ꜝ
-    b₀ = 0.77    # kgm⁻³(gkg⁻ꜝ)⁻ꜝ
+    Cb = 0.011   # kg m⁻³ K⁻²
+    Tₕ = 2.5e-5  # kg m⁻⁴ K⁻¹
+    b₀ = 0.77    # kg m⁻³ (g kg⁻¹)⁻¹
     Θ₀ = -4.5    # °C
 
     return SecondOrderSeawaterPolynomial{FT}(R₀₀₀ = (-Cb * Θ₀ ^ 2) / 2,
