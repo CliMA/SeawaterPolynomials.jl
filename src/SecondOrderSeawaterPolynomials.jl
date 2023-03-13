@@ -218,6 +218,7 @@ SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
                                       R₂₀₀ = - 1.115e-4,
                                       R₁₀₁ = - 8.241e-6,
                                       R₁₁₀ = - 2.446e-3)
+
 """
     SimplestRealisticRoquetSeawaterPolynomial(FT=Float64)
 
