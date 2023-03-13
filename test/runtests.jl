@@ -78,4 +78,20 @@ end
         @test SeawaterPolynomials.TEOS10.thermal_sensitivity(Θ, S, Z, eos) ≈ 0.179646281
         @test SeawaterPolynomials.TEOS10.haline_sensitivity(Θ, S, Z, eos) ≈ 0.765555368
     end
+
+end
+
+@testset "show" begin
+    show_polynomial_string = repr(RoquetSeawaterPolynomial(:SecondOrder))
+    R₀₀₀ = 0.0
+    R₀₁₀ = 0.182e-1
+    R₁₀₀ = 8.078e-1
+    R₀₂₀ = 4.937e-3
+    R₀₁₁ = 2.4677e-5
+    R₂₀₀ = 1.115e-4
+    R₁₀₁ = 8.241e-6
+    R₁₁₀ = 2.446e-3
+    test_polynomial_string =
+        "$(eval(R₀₀₀)) + $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
+    @test show_polynomial_string == test_polynomial_string
 end
