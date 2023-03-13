@@ -220,7 +220,7 @@ SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
                                       R₁₁₀ = - 2.446e-3)
 
 """
-    SimplestRealisticRoquetSeawaterPolynomial(FT=Float64)
+    SimplestRealisticRoquetSeawaterPolynomial([FT=Float64])
 
 Parameters for the simplest yet "realistic" equation of state for seawater
 from Roquet et al. (2015) (see equation (17)), optimized for the 'current' oceanic
