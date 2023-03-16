@@ -92,6 +92,6 @@ end
     R₁₀₁ = 8.241e-6
     R₁₁₀ = 2.446e-3
     test_polynomial_string =
-        "$(eval(R₀₀₀)) + $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
+        "ρ' = $(eval(R₀₀₀)) + $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
     @test show_polynomial_string == test_polynomial_string
 end
