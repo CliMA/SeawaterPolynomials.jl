@@ -46,7 +46,7 @@ end
 
             eos = RoquetEquationOfState(FT)
 
-            @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == eos.seawater_polynomial.R₀₀₀
+            @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == 0
             @test SeawaterPolynomials.haline_sensitivity(0, 0, 0, eos) ==
                     eos.seawater_polynomial.R₁₀₀
             @test SeawaterPolynomials.thermal_sensitivity(0, 0, 0, eos) ==
@@ -83,7 +83,6 @@ end
 
 @testset "show" begin
     show_polynomial_string = repr(RoquetSeawaterPolynomial(:SecondOrder))
-    R₀₀₀ = 0.0
     R₀₁₀ = 0.182e-1
     R₁₀₀ = 8.078e-1
     R₀₂₀ = 4.937e-3
@@ -92,6 +91,6 @@ end
     R₁₀₁ = 8.241e-6
     R₁₁₀ = 2.446e-3
     test_polynomial_string =
-        "ρ' = $(eval(R₀₀₀)) + $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
+        "ρ' = $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
     @test show_polynomial_string == test_polynomial_string
 end

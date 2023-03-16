@@ -35,7 +35,6 @@ seawater_polynomial(Θ, Sᴬ, Z) = ⋯ + R₁₁₀ * Sᴬ * Θ + ⋯
 ```
 """
 @Base.kwdef struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
-    R₀₀₀ :: FT = 0
     R₁₀₀ :: FT = 0
     R₀₁₀ :: FT = 0
     R₁₀₁ :: FT = 0
@@ -54,8 +53,7 @@ signstr(x) = sign(x) < 0 ? " - " : " + "
 
 function Base.show(io::IO, eos::SecondOrderSeawaterPolynomial)
     print(io, "ρ' = ")
-    print(io, eos.R₀₀₀, "")
-    print(io, signstr(eos.R₁₀₀), abs(eos.R₁₀₀), " Sᴬ")
+    print(io, eos.R₁₀₀, " Sᴬ")
     print(io, signstr(eos.R₀₁₀), abs(eos.R₀₁₀), " Θ")
     print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Θ²")
     print(io, signstr(eos.R₀₁₁), abs(eos.R₀₁₁), " Θ Z")
@@ -64,8 +62,7 @@ function Base.show(io::IO, eos::SecondOrderSeawaterPolynomial)
     print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ Θ")
 end
 
-@inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₀₀₀
-                                   + eos.seawater_polynomial.R₁₀₀ * Sᴬ
+@inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₁₀₀ * Sᴬ
                                    + eos.seawater_polynomial.R₀₁₀ * Θ
                                    + eos.seawater_polynomial.R₀₂₀ * Θ^2
                                    - eos.seawater_polynomial.R₀₁₁ * Θ * Z
@@ -112,7 +109,7 @@ Coefficient sets
 
 - `:SimplestRealistic`: the proposed simplest though "realistic" equation of state for
                         seawater from Rouquet et al. (2015),
-                        ``ρ = ρᵣ - R₀₀₀ + R₁₀₀ Sᴬ  + R₀₁₀ Θ - R₀₂₀ Θ² - R₀₁₁ Θ Z``
+                        ``ρ = ρᵣ + R₁₀₀ Sᴬ  + R₀₁₀ Θ - R₀₂₀ Θ² - R₀₁₁ Θ Z``
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
@@ -120,8 +117,9 @@ further discussed around equations (12)--(15). The optimization minimizes errors
 horizontal density gradient estiamted from climatological temperature and salinity distributions
 between the 5 simplified forms chosen by Roquet et. al and the full-fledged
 [TEOS-10](http://www.teos-10.org) equation of state.
-The `:SimplestRealistic` equation of state is equation (17) with a full
-description of the coefficients immediately under equation (17) in Rouquet et al. (2015).
+The `:SimplestRealistic` equation of state is equation (17) in Rouquet et al. (2015) which
+they propose is the simplest yet "realistic" form for the equation of state for the density
+of seawater.
 """
 RoquetSeawaterPolynomial(FT::DataType, coefficient_set=:SecondOrder) =
     eval(Symbol(coefficient_set, :RoquetSeawaterPolynomial))(FT)
@@ -236,8 +234,7 @@ function SimplestRealisticRoquetSeawaterPolynomial(FT=Float64)
     b₀ = 0.77    # kg m⁻³ (g kg⁻¹)⁻¹
     Θ₀ = -4.5    # °C
 
-    return SecondOrderSeawaterPolynomial{FT}(R₀₀₀ = (-Cb * Θ₀ ^ 2) / 2,
-                                             R₁₀₀ = b₀,
+    return SecondOrderSeawaterPolynomial{FT}(R₁₀₀ = b₀,
                                              R₀₁₀ = Cb * Θ₀,
                                              R₀₂₀ = -Cb / 2,
                                              R₀₁₁ = -Tₕ)
