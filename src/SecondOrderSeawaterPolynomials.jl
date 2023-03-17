@@ -1,6 +1,6 @@
 module SecondOrderSeawaterPolynomials
 
-export 
+export
     SecondOrderSeawaterPolynomial,
     RoquetSeawaterPolynomial,
     RoquetEquationOfState
@@ -12,8 +12,8 @@ import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
 """
     struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
 
-Container of coefficients for a second-order polynomial function of 
-absolute salinity `Sᴬ`, conservative temperature `Θ`, and geopotential 
+Container of coefficients for a second-order polynomial function of
+absolute salinity `Sᴬ`, conservative temperature `Θ`, and geopotential
 depth `Z` for seawater density.
 
 The coefficients have the form
@@ -52,15 +52,16 @@ Base.summary(::SecondOrderSeawaterPolynomial{FT}) where FT = "SecondOrderSeawate
 signstr(x) = sign(x) < 0 ? " - " : " + "
 
 function Base.show(io::IO, eos::SecondOrderSeawaterPolynomial)
+    print(io, "ρ' = ")
     print(io, eos.R₁₀₀, " Sᴬ")
     print(io, signstr(eos.R₀₁₀), abs(eos.R₀₁₀), " Θ")
-    print(io, signstr(eos.R₁₀₁), abs(eos.R₁₀₁), " Θ²")
+    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Θ²")
     print(io, signstr(eos.R₀₁₁), abs(eos.R₀₁₁), " Θ Z")
-    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ²")
-    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Sᴬ Z")
-    print(io, signstr(eos.R₂₀₀), abs(eos.R₂₀₀), " Sᴬ Θ")
+    print(io, signstr(eos.R₂₀₀), abs(eos.R₂₀₀), " Sᴬ²")
+    print(io, signstr(eos.R₁₀₁), abs(eos.R₁₀₁), " Sᴬ Z")
+    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ Θ")
 end
-    
+
 @inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₁₀₀ * Sᴬ
                                    + eos.seawater_polynomial.R₀₁₀ * Θ
                                    + eos.seawater_polynomial.R₀₂₀ * Θ^2
@@ -86,8 +87,8 @@ Return a `SecondOrderSeawaterPolynomial` with coefficients optimized by
 
 > Roquet et al., "Defining a Simplified yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015).
 
-The `coefficient_set` is a symbol or string that selects one of the "sets" of 
-optimized second order coefficients. 
+The `coefficient_set` is a symbol or string that selects one of the "sets" of
+optimized second order coefficients.
 
 Coefficient sets
 ================
@@ -106,12 +107,19 @@ Coefficient sets
                   ``ρ = ρᵣ + R₁₀₀ Sᴬ + R₀₁₀ Θ + R₀₂₀ Θ² - R₀₁₁ Θ Z
                            + R₂₀₀ (Sᴬ)² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
 
+- `:SimplestRealistic`: the proposed simplest though "realistic" equation of state for
+                        seawater from Rouquet et al. (2015),
+                        ``ρ = ρᵣ + R₁₀₀ Sᴬ  + R₀₁₀ Θ - R₀₂₀ Θ² - R₀₁₁ Θ Z``
+
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
 further discussed around equations (12)--(15). The optimization minimizes errors in estimated
 horizontal density gradient estiamted from climatological temperature and salinity distributions
 between the 5 simplified forms chosen by Roquet et. al and the full-fledged
 [TEOS-10](http://www.teos-10.org) equation of state.
+The `:SimplestRealistic` equation of state is equation (17) in Rouquet et al. (2015) which
+they propose is the simplest yet "realistic" form for the equation of state for the density
+of seawater.
 """
 RoquetSeawaterPolynomial(FT::DataType, coefficient_set=:SecondOrder) =
     eval(Symbol(coefficient_set, :RoquetSeawaterPolynomial))(FT)
@@ -136,7 +144,7 @@ RoquetEquationOfState(FT::DataType, coefficient_set=:SecondOrder; reference_dens
     BoussinesqEquationOfState(RoquetSeawaterPolynomial(FT, coefficient_set), reference_density)
 
 RoquetEquationOfState(coefficient_set=:SecondOrder; reference_density=1024.6) =
-    RoquetEquationOfState(Float64, coefficient_set, reference_density=1024.6)
+    RoquetEquationOfState(Float64, coefficient_set; reference_density)
 
 """
     LinearRoquetSeawaterPolynomial([FT=Float64])
@@ -167,7 +175,7 @@ CabbelingRoquetSeawaterPolynomial(FT=Float64) =
     CabbelingThermobaricityRoquetSeawaterPolynomial([FT=Float64])
 
 Parameters for a minimal equation of state that describes cabbeling and thermobaric
-effects on sewater density, optimized for the 'current' oceanic temperature and salinity 
+effects on sewater density, optimized for the 'current' oceanic temperature and salinity
 distribution.
 
 For more information see [`RoquetSeawaterPolynomial`](@ref).
@@ -182,7 +190,7 @@ CabbelingThermobaricityRoquetSeawaterPolynomial(FT=Float64) =
     FreezingRoquetSeawaterPolynomial(FT=Float64)
 
 Parameters for a minimal equation of state that describes seawater density near its
-freezing point, optimized for the 'current' oceanic temperature and salinity 
+freezing point, optimized for the 'current' oceanic temperature and salinity
 distribution.
 
 For more information see [`RoquetSeawaterPolynomial`](@ref).
@@ -209,5 +217,27 @@ SecondOrderRoquetSeawaterPolynomial(FT=Float64) =
                                       R₂₀₀ = - 1.115e-4,
                                       R₁₀₁ = - 8.241e-6,
                                       R₁₁₀ = - 2.446e-3)
+
+"""
+    SimplestRealisticRoquetSeawaterPolynomial([FT=Float64])
+
+Parameters for the simplest yet "realistic" equation of state for seawater
+from Roquet et al. (2015) (see equation (17)), optimized for the 'current' oceanic
+temperature and salinity distribution.
+
+For more information see [`RoquetSeawaterPolynomial`](@ref).
+"""
+function SimplestRealisticRoquetSeawaterPolynomial(FT=Float64)
+
+    Cb = 0.011   # kg m⁻³ K⁻²
+    Tₕ = 2.5e-5  # kg m⁻⁴ K⁻¹
+    b₀ = 0.77    # kg m⁻³ (g kg⁻¹)⁻¹
+    Θ₀ = -4.5    # °C
+
+    return SecondOrderSeawaterPolynomial{FT}(R₁₀₀ = b₀,
+                                             R₀₁₀ = Cb * Θ₀,
+                                             R₀₂₀ = -Cb / 2,
+                                             R₀₁₁ = -Tₕ)
+end
 
 end # module
