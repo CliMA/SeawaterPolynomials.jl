@@ -8,10 +8,11 @@ conservative temperature `Θ`, at fixed absolute salinity `Sᴬ`, and geopotenti
 using the Boussinesq `equation_of_state`. The thermal expansion coefficient is
 
 ```math
-α(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
+a(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
 ```
 
-and measures how much seawater density changes when conservative temperature is changed.
+and measures how much seawater density changes when conservative temperature is changed. 
+It has units of [kg/m³/(g/kg)], and differs from `thermal_expansion` (``α``) by a factor of the reference density ``ρᵣ``.
 'Thermal expansion' is so named because, due to sign convention, positive values reflect decreasing
 seawater density with increasing conservative temperature, and thus an 'expansion' of oceanic
 fluid parcels. In many, but not all conditions in Earth's ocean (at temperatures greater than
@@ -30,10 +31,11 @@ salinity `Sᴬ`, at fixed conservative temperature `Θ`, and geopotential height
 the Boussinesq `equation_of_state`. The haline contraction coefficient is
 
 ```math
-β(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
+b(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
 ```
 
 and measures how much seawater density changes when absolute salinity is changed.
+It has units of [kg/m³/(g/kg)], and differs from `haline_contraction` (``β``) by a factor of the reference density ``ρᵣ``.
 'Haline contraction' is so named because, due to sign convention, positive values reflect increasing
 seawater density with increasing absolute salinity, and thus a slight 'contraction' of oceanic
 fluid parcels.
