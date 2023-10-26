@@ -36,9 +36,7 @@ b(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
 
 and measures how much seawater density changes when absolute salinity is changed.
 It has units of [kg/m³/(g/kg)], and differs from `haline_contraction` (``β``) by a factor of the reference density ``ρᵣ``.
-'Haline contraction' is so named because, due to sign convention, positive values reflect increasing
-seawater density with increasing absolute salinity, and thus a slight 'contraction' of oceanic
-fluid parcels.
+The sign of the haline sensitivity coefficient is defined to be consistent with the haline contraction coefficient.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
