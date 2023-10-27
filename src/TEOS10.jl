@@ -310,7 +310,7 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
 - `Z`: geopotential depth [m]
 
 # Output
-- `b`: Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)]
+- `b`: Boussinesq haline sensitivity coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
