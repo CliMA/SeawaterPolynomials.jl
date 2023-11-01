@@ -14,7 +14,7 @@ a(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
 and measures how much seawater density changes when conservative temperature is changed. 
 It has units of [kg/m³/(g/kg)], and differs from `thermal_expansion` (``α``) by a factor of the reference density ``ρᵣ``.
 In many, but not all conditions in Earth's ocean (at temperatures greater than
-4ᵒC in freshwater), the thermal expansion coefficient is positive.
+4ᵒC in freshwater), the thermal sensitivity coefficient is positive.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
