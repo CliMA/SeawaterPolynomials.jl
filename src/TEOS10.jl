@@ -183,7 +183,7 @@ approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
 @inline ρ(Θ, Sᴬ, Z, ::EOS₁₀) = _ρ(τ(Θ), s(Sᴬ), ζ(Z))
-@inline ρ′(Θ, Sᴬ, Z, eos::EOS₁₀) = r'(τ(Θ), s(Sᴬ), ζ(Z)) - eos.reference_density 
+@inline ρ′(Θ, Sᴬ, Z, eos::EOS₁₀) = r′(τ(Θ), s(Sᴬ), ζ(Z)) - eos.reference_density 
 
 @inline _ρ(τ, s, ζ) = r₀(ζ) + r′(τ, s, ζ)
 
