@@ -188,7 +188,7 @@ approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 @inline _ρ(τ, s, ζ) = r₀(ζ) + r′(τ, s, ζ)
 
 #####
-##### Thermal expansion fit
+##### Thermal sensitivity fit
 #####
 
 const α₀₀₀ = -6.5025362670e-01
@@ -230,7 +230,7 @@ const α₀₀₃ = -9.4924551138e-03
 """
     thermal_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
 
-Return the Boussinesq thermal expansion coefficient ``-∂ρ/∂Θ`` [kg/m³/K] computed using
+Return the Boussinesq thermal sensitivity coefficient ``-∂ρ/∂Θ`` [kg/m³/K] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
@@ -239,7 +239,7 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
 - `Z`: geopotential depth [m]
 
 # Output
-- `a`: Boussinesq thermal expansion coefficient ``-∂ρ/∂Θ`` [kg/m³/K]
+- `a`: Boussinesq thermal sensitivity coefficient ``-∂ρ/∂Θ`` [kg/m³/K]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
@@ -259,7 +259,7 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
     ((((α₅₀₀ * s + α₄₀₀) * s + α₃₀₀) * s + α₂₀₀) * s + α₁₀₀) * s + α₀₀₀
 
 #####
-##### Saline contraction
+##### Saline sensitivity
 #####
 
 const β₀₀₀ =  1.0783203594e+01
@@ -301,7 +301,7 @@ const β₀₀₃ = -2.3025968587e-04
 """
     haline_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
 
-Return the Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)] computed using
+Return the Boussinesq haline sensitivity coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
@@ -310,7 +310,7 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
 - `Z`: geopotential depth [m]
 
 # Output
-- `β`: Boussinesq haline contraction coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)]
+- `b`: Boussinesq haline sensitivity coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions

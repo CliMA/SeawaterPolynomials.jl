@@ -3,19 +3,18 @@ module SeawaterPolynomials
 """
     thermal_sensitivity(Θ, Sᴬ, Z, equation_of_state)
 
-Return the "Boussinesq thermal expansion coefficient" for a seawater parcel with
+Return the "Boussinesq thermal sensitivity coefficient" for a seawater parcel with
 conservative temperature `Θ`, at fixed absolute salinity `Sᴬ`, and geopotential height `Z`
-using the Boussinesq `equation_of_state`. The thermal expansion coefficient is
+using the Boussinesq `equation_of_state`. The thermal sensitivity coefficient is
 
 ```math
-α(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
+a(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
 ```
 
-and measures how much seawater density changes when conservative temperature is changed.
-'Thermal expansion' is so named because, due to sign convention, positive values reflect decreasing
-seawater density with increasing conservative temperature, and thus an 'expansion' of oceanic
-fluid parcels. In many, but not all conditions in Earth's ocean (at temperatures greater than
-4ᵒC in freshwater), the thermal expansion coefficient is positive.
+and measures how much seawater density changes when conservative temperature is changed. 
+It has units of [kg/m³/(g/kg)], and differs from `thermal_expansion` (``α``) by a factor of the reference density ``ρᵣ``.
+In many, but not all conditions in Earth's ocean (at temperatures greater than
+4ᵒC in freshwater), the thermal sensitivity coefficient is positive.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
@@ -25,18 +24,17 @@ function thermal_sensitivity end
 """
     haline_sensitivity(Θ, Sᴬ, Z, equation_of_state)
 
-Return the "Boussinesq haline contraction coefficient" for a seawater parcel with absolute
+Return the "Boussinesq haline sensitivity coefficient" for a seawater parcel with absolute
 salinity `Sᴬ`, at fixed conservative temperature `Θ`, and geopotential height `Z`, using
-the Boussinesq `equation_of_state`. The haline contraction coefficient is
+the Boussinesq `equation_of_state`. The haline sensitivity coefficient is
 
 ```math
-β(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
+b(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
 ```
 
 and measures how much seawater density changes when absolute salinity is changed.
-'Haline contraction' is so named because, due to sign convention, positive values reflect increasing
-seawater density with increasing absolute salinity, and thus a slight 'contraction' of oceanic
-fluid parcels.
+It has units of [kg/m³/(g/kg)], and differs from `haline_contraction` (``β``) by a factor of the reference density ``ρᵣ``.
+The sign of the haline sensitivity coefficient is defined to be consistent with the haline contraction coefficient.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
