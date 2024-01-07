@@ -45,6 +45,7 @@ of state for seawater. See
 TEOS10SeawaterPolynomial(FT=Float64) = TEOS10SeawaterPolynomial{FT}()
 
 const EOS₁₀ = BoussinesqEquationOfState{<:TEOS10SeawaterPolynomial}
+const TEOS10EquationOfState{FT} = BoussinesqEquationOfState{<:TEOS10SeawaterPolynomial, FT} where FT
 
 """
     TEOS10EquationOfState(FT=Float64; reference_density=1020)
@@ -61,8 +62,9 @@ Note that according to Roquet et al. (2015):
 
 > "In a Boussinesq model, the choice of the ``ρ₀`` value is important, yet it varies significantly among OGCMs, as it is a matter of personal preference."
 """
-TEOS10EquationOfState(FT=Float64; reference_density=FT(1020)) =
-    BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(), reference_density)
+TEOS10EquationOfState(FT=Float64; reference_density=1020) =
+    BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(),
+                              convert(FT, reference_density))
 
 #####
 ##### Reference values chosen using TEOS-10 recommendation
