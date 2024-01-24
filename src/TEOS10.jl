@@ -12,6 +12,12 @@ import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
 ##### The TEOS-10 polynomial approximation implemented in this file has been translated
 ##### into Julia from https://github.com/fabien-roquet/polyTEOS/blob/master/polyTEOS10.py
 #####
+##### Note: this implementation codes the polynomial weights as `const`, thus capturing the
+##### polynomial weights implicitly in function closures. As a result of this design, the
+##### polynomial weights cannot be modified without changing this file. To implement a
+##### polynomial approximation with settable weights, the struct `TEOS10SeawaterPolynomial`
+##### should be modified to carry the weights explicitly.
+#####
 
 """
     struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
@@ -19,6 +25,11 @@ import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
 A 55-term polynomial approximation to the TEOS-10 standard equation of state for seawater.
 """
 struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
+
+# The constant, reference heat capacity that acts as a conversion factor between the TEOS10 
+# conservative temperature and potential enthalpy. See equation 3.3.3 (section 3.3, page 27)
+# in the TEOS10 manual: http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
+const teos10_reference_heat_capacity = 3991.86795711963 # J kg⁻¹ K⁻¹
 
 Base.eltype(::TEOS10SeawaterPolynomial{FT}) where FT = FT
 Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomial{$FT}"
@@ -34,6 +45,7 @@ of state for seawater. See
 TEOS10SeawaterPolynomial(FT=Float64) = TEOS10SeawaterPolynomial{FT}()
 
 const EOS₁₀ = BoussinesqEquationOfState{<:TEOS10SeawaterPolynomial}
+const TEOS10EquationOfState{FT} = BoussinesqEquationOfState{<:TEOS10SeawaterPolynomial, FT} where FT
 
 """
     TEOS10EquationOfState(FT=Float64; reference_density=1020)
@@ -50,8 +62,9 @@ Note that according to Roquet et al. (2015):
 
 > "In a Boussinesq model, the choice of the ``ρ₀`` value is important, yet it varies significantly among OGCMs, as it is a matter of personal preference."
 """
-TEOS10EquationOfState(FT=Float64; reference_density=FT(1020)) =
-    BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(), reference_density)
+TEOS10EquationOfState(FT=Float64; reference_density=1020) =
+    BoussinesqEquationOfState(TEOS10SeawaterPolynomial{FT}(),
+                              convert(FT, reference_density))
 
 #####
 ##### Reference values chosen using TEOS-10 recommendation
