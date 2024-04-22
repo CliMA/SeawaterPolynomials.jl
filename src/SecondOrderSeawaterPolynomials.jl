@@ -108,7 +108,7 @@ Coefficient sets
                            + R₂₀₀ (Sᴬ)² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
 
 - `:SimplestRealistic`: the proposed simplest though "realistic" equation of state for
-                        seawater from Rouquet et al. (2015),
+                        seawater from Roquet et al. (2015),
                         ``ρ = ρᵣ + R₁₀₀ Sᴬ  + R₀₁₀ Θ - R₀₂₀ Θ² - R₀₁₁ Θ Z``
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
@@ -117,11 +117,11 @@ further discussed around equations (12)--(15). The optimization minimizes errors
 horizontal density gradient estiamted from climatological temperature and salinity distributions
 between the 5 simplified forms chosen by Roquet et. al and the full-fledged
 [TEOS-10](http://www.teos-10.org) equation of state.
-The `:SimplestRealistic` equation of state is equation (17) in Rouquet et al. (2015) which
+The `:SimplestRealistic` equation of state is equation (17) in Roquet et al. (2015) which
 they propose is the simplest yet "realistic" form for the equation of state for the density
 of seawater.
 
-**Note:** In equation (17) by Rouquet et al. (2015), the `:SimplestRealistic` equation
+**Note:** In equation (17) by Roquet et al. (2015), the `:SimplestRealistic` equation
 of state has an extra term ``R₀₀₀ = - C_b Θ₀² / 2`` that is not included in the coefficient set
 above since this term has no effect on ocean dynamics.
 """
