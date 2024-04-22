@@ -120,9 +120,10 @@ between the 5 simplified forms chosen by Roquet et. al and the full-fledged
 The `:SimplestRealistic` equation of state is equation (17) in Rouquet et al. (2015) which
 they propose is the simplest yet "realistic" form for the equation of state for the density
 of seawater.
-**Note:** In equation (17) from Rouquet et al. (2015), the `:SimplestRealistic` equation
-of state has an extra term ``R₀₀₀ = -C_{b}Θ₀²/2`` which is not included in the coefficient set
-above. This is because this term has no effect on ocean dynamics.
+
+**Note:** In equation (17) by Rouquet et al. (2015), the `:SimplestRealistic` equation
+of state has an extra term ``R₀₀₀ = - C_b Θ₀² / 2`` that is not included in the coefficient set
+above since this term has no effect on ocean dynamics.
 """
 RoquetSeawaterPolynomial(FT::DataType, coefficient_set=:SecondOrder) =
     eval(Symbol(coefficient_set, :RoquetSeawaterPolynomial))(FT)
