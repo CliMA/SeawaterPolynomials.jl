@@ -93,7 +93,7 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₁₀₀ Θ + R₀₁₀ Sᴬ``.
+- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ``.
 
 - `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ²``.
 
