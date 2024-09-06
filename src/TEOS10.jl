@@ -6,7 +6,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
+import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity
 
 #####
 ##### The TEOS-10 polynomial approximation implemented in this file has been translated

@@ -7,7 +7,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ′, thermal_sensitivity, haline_sensitivity
+import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity
 
 """
     struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
