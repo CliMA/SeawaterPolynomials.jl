@@ -74,7 +74,8 @@ end
         @test SeawaterPolynomials.TEOS10.r₀(ζ) ≈ 4.59763035
         @test SeawaterPolynomials.TEOS10.r′(τ, s, ζ) ≈ 1022.85377
 
-        @test SeawaterPolynomials.TEOS10.ρ(Θ, S, Z, eos) ≈ 1027.45140
+        @test SeawaterPolynomials.ρ(Θ, S, Z, eos) ≈ 1027.45140
+        
         @test SeawaterPolynomials.TEOS10.thermal_sensitivity(Θ, S, Z, eos) ≈ 0.179646281
         @test SeawaterPolynomials.TEOS10.haline_sensitivity(Θ, S, Z, eos) ≈ 0.765555368
     end
