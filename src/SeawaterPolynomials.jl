@@ -11,7 +11,7 @@ using the Boussinesq `equation_of_state`. The thermal sensitivity coefficient is
 a(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
 ```
 
-and measures how much seawater density changes when conservative temperature is changed. 
+and measures how much seawater density changes when conservative temperature is changed.
 It has units of [kg/m³/(g/kg)], and differs from `thermal_expansion` (``α``) by a factor of the reference density ``ρᵣ``.
 In many, but not all conditions in Earth's ocean (at temperatures greater than
 4ᵒC in freshwater), the thermal sensitivity coefficient is positive.
@@ -60,8 +60,8 @@ Base.summary(eos::BoussinesqEquationOfState{P, FT}) where {P, FT} =
 
 function Base.show(io::IO, eos::BoussinesqEquationOfState)
     print(io, summary(eos), ":", '\n')
-    print(io, "    ├── seawater_polynomial: ", summary(eos.seawater_polynomial), '\n')
-    print(io, "    └── reference_density: ", eos.reference_density)
+    print(io, "├── seawater_polynomial: ", summary(eos.seawater_polynomial), '\n')
+    print(io, "└── reference_density: ", eos.reference_density)
 end
 
 @inline reference_density(eos) = eos.reference_density
