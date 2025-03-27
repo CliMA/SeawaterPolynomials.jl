@@ -96,13 +96,11 @@ end
     @test show_polynomial_string == test_polynomial_string
 end
 
-
-
 @testset "convert" begin
     for (FT, FT2) in zip((Float32, Float64), (Float64, Float32))
-        teos10 = instantiate_teos10_polynomial(FT)
-        test10 = convert(FT2, teos10)
-        @test eltype(teos10) == FT2
+        eos = instantiate_teos10_equation_of_state(FT)
+        eos = convert(FT2, eos)
+        @test eltype(eos) == FT2
 
         for coefficient_set in (:Linear,
                                 :Cabbeling,
@@ -112,8 +110,8 @@ end
                                 :SimplestRealistic)
 
             eos = instantiate_roquet_equation_of_state(FT, coefficient_set)
-            eos = convert(FT2, teos10)
-            @test eltype(teos10) == FT2
+            eos = convert(FT2, eos)
+            @test eltype(eos) == FT2
         end
     end
 end
