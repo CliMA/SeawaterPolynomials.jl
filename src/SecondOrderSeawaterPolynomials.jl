@@ -48,6 +48,14 @@ const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
 Base.eltype(::SecondOrderSeawaterPolynomial{FT}) where FT = FT
 Base.summary(::SecondOrderSeawaterPolynomial{FT}) where FT = "SecondOrderSeawaterPolynomial{$FT}"
+Base.convert(FT::Datatype, eos::SecondOrderSeawaterPolynomial) = 
+    SecondOrderSeawaterPolynomial{FT}(eos.R₁₀₀, 
+                                      eos.R₀₁₀,
+                                      eos.R₁₀₁,
+                                      eos.R₀₁₁,
+                                      eos.R₁₁₀,
+                                      eos.R₀₂₀,
+                                      eos.R₂₀₀)
 
 signstr(x) = sign(x) < 0 ? " - " : " + "
 
