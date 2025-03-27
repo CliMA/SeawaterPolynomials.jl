@@ -29,7 +29,7 @@ docs/Manifest.toml
 # Mac OS X
 *.DS_Store
 
-.swp
+*.swp
 
 # vscode
 .vscode

@@ -7,7 +7,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity
+import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity, with_float_type
 
 """
     struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
@@ -48,7 +48,7 @@ const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
 Base.eltype(::SecondOrderSeawaterPolynomial{FT}) where FT = FT
 Base.summary(::SecondOrderSeawaterPolynomial{FT}) where FT = "SecondOrderSeawaterPolynomial{$FT}"
-with_float_type(FT::DataType, eos::SecondOrderSeawaterPolynomial) = 
+with_float_type(FT, eos::SecondOrderSeawaterPolynomial) = 
     SecondOrderSeawaterPolynomial{FT}(eos.R₁₀₀, 
                                       eos.R₀₁₀,
                                       eos.R₁₀₁,
