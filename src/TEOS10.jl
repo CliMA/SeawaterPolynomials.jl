@@ -159,18 +159,18 @@ const R₀₁₃ =  3.7969820455e-01
 @inline r′₂(τ::FT, s::FT) where FT = (FT(R₀₂₂) * τ + FT(R₁₁₂) * s + FT(R₀₁₂)) * τ + (FT(R₂₀₂) * s + FT(R₁₀₂)) * s + FT(R₀₀₂)
 
 @inline r′₁(τ::FT, s::FT) where FT =
-(((FT(R₀₄₁) * τ + FT(R₁₃₁) * s + FT(R₀₃₁)) * τ +
-  (FT(R₂₂₁) * s + FT(R₁₂₁)) * s + FT(R₀₂₁)) * τ +
- ((FT(R₃₁₁) * s + FT(R₂₁₁)) * s + FT(R₁₁₁)) * s + FT(R₀₁₁)) * τ +
-(((FT(R₄₀₁) * s + FT(R₃₀₁)) * s + FT(R₂₀₁)) * s + FT(R₁₀₁)) * s + FT(R₀₀₁)
+    (((FT(R₀₄₁) * τ + FT(R₁₃₁)  * s + FT(R₀₃₁)) * τ +
+      (FT(R₂₂₁) * s + FT(R₁₂₁)) * s + FT(R₀₂₁)) * τ +
+     ((FT(R₃₁₁) * s + FT(R₂₁₁)) * s + FT(R₁₁₁)) * s + FT(R₀₁₁)) * τ +
+    (((FT(R₄₀₁) * s + FT(R₃₀₁)) * s + FT(R₂₀₁)) * s + FT(R₁₀₁)) * s + FT(R₀₀₁)
 
 @inline r′₀(τ::FT, s::FT) where FT =
-(((((FT(R₀₆₀) * τ + FT(R₁₅₀) * s + FT(R₀₅₀)) * τ +
-    (FT(R₂₄₀) * s + FT(R₁₄₀)) * s + FT(R₀₄₀)) * τ +
-   ((FT(R₃₃₀) * s + FT(R₂₃₀)) * s + FT(R₁₃₀)) * s + FT(R₀₃₀)) * τ +
-  (((FT(R₄₂₀) * s + FT(R₃₂₀)) * s + FT(R₂₂₀)) * s + FT(R₁₂₀)) * s + FT(R₀₂₀)) * τ +
- ((((FT(R₅₁₀) * s + FT(R₄₁₀)) * s + FT(R₃₁₀)) * s + FT(R₂₁₀)) * s + FT(R₁₁₀)) * s + FT(R₀₁₀)) * τ +
-(((((FT(R₆₀₀) * s + FT(R₅₀₀)) * s + FT(R₄₀₀)) * s + FT(R₃₀₀)) * s + FT(R₂₀₀)) * s + FT(R₁₀₀)) * s + FT(R₀₀₀)
+    (((((FT(R₀₆₀) * τ + FT(R₁₅₀)  * s + FT(R₀₅₀)) * τ +
+        (FT(R₂₄₀) * s + FT(R₁₄₀)) * s + FT(R₀₄₀)) * τ +
+       ((FT(R₃₃₀) * s + FT(R₂₃₀)) * s + FT(R₁₃₀)) * s + FT(R₀₃₀)) * τ +
+      (((FT(R₄₂₀) * s + FT(R₃₂₀)) * s + FT(R₂₂₀)) * s + FT(R₁₂₀)) * s + FT(R₀₂₀)) * τ +
+     ((((FT(R₅₁₀) * s + FT(R₄₁₀)) * s + FT(R₃₁₀)) * s + FT(R₂₁₀)) * s + FT(R₁₁₀)) * s + FT(R₀₁₀)) * τ +
+    (((((FT(R₆₀₀) * s + FT(R₅₀₀)) * s + FT(R₄₀₀)) * s + FT(R₃₀₀)) * s + FT(R₂₀₀)) * s + FT(R₁₀₀)) * s + FT(R₀₀₀)
 
 @inline r′(τ, s, ζ) = ((r′₃(τ, s) * ζ + r′₂(τ, s)) * ζ + r′₁(τ, s)) * ζ + r′₀(τ, s)
 
@@ -262,10 +262,10 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
 @inline thermal_sensitivity(Θ, Sᴬ, Z, ::EOS₁₀) = _a(τ(Θ), s(Sᴬ), ζ(Z))
 
 @inline _a(τ::FT, s::FT, ζ::FT) where FT =
-     ((FT(α₀₀₃) * ζ  + FT(α₀₁₂)  * τ + FT(α₁₀₂)  * s + FT(α₀₀₂)) * ζ +
-     ((FT(α₀₃₁) * τ  + FT(α₁₂₁)  * s + FT(α₀₂₁)) * τ +
-      (FT(α₂₁₁) * s  + FT(α₁₁₁)) * s + FT(α₀₁₁)) * τ +
-     ((FT(α₃₀₁) * s  + FT(α₂₀₁)) * s + FT(α₁₀₁)) * s + FT(α₀₀₁)) * ζ +
+      ((FT(α₀₀₃) * ζ + FT(α₀₁₂)  * τ + FT(α₁₀₂)  * s + FT(α₀₀₂)) * ζ +
+      ((FT(α₀₃₁) * τ + FT(α₁₂₁)  * s + FT(α₀₂₁)) * τ +
+       (FT(α₂₁₁) * s + FT(α₁₁₁)) * s + FT(α₀₁₁)) * τ +
+      ((FT(α₃₀₁) * s + FT(α₂₀₁)) * s + FT(α₁₀₁)) * s + FT(α₀₀₁)) * ζ +
     ((((FT(α₀₅₀) * τ + FT(α₁₄₀)  * s + FT(α₀₄₀)) * τ +
        (FT(α₂₃₀) * s + FT(α₁₃₀)) * s + FT(α₀₃₀)) * τ +
       ((FT(α₃₂₀) * s + FT(α₂₂₀)) * s + FT(α₁₂₀)) * s + FT(α₀₂₀)) * τ +
