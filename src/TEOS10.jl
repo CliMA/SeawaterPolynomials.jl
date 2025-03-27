@@ -6,7 +6,7 @@ export
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
-import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity
+import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity, with_float_type
 
 #####
 ##### The TEOS-10 polynomial approximation implemented in this file has been translated
@@ -33,7 +33,7 @@ const teos10_reference_heat_capacity = 3991.86795711963 # J kg⁻¹ K⁻¹
 
 Base.eltype(::TEOS10SeawaterPolynomial{FT}) where FT = FT
 Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomial{$FT}"
-with_float_type(FT::DataType, ::TEOS10SeawaterPolynomial) = TEOS10SeawaterPolynomial{FT}()
+with_float_type(FT, ::TEOS10SeawaterPolynomial) = TEOS10SeawaterPolynomial{FT}()
 
 """
     TEOS10SeawaterPolynomial(FT=Float64)
