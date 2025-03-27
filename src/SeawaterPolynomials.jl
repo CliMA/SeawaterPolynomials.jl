@@ -1,5 +1,7 @@
 module SeawaterPolynomials
 
+import Base
+
 """
     thermal_sensitivity(Θ, Sᴬ, Z, equation_of_state)
 
@@ -54,6 +56,8 @@ struct BoussinesqEquationOfState{P, FT}
 end
 
 const BEOS = BoussinesqEquationOfState
+
+Base.convert(FT::Datatype, eos::BEOS) = BoussinesqEquationOfState(convert(FT, eos.seawater_polynomial), convert(FT, eos.reference_density))
 
 Base.summary(eos::BoussinesqEquationOfState{P, FT}) where {P, FT} =
     string("BoussinesqEquationOfState{$FT}")
