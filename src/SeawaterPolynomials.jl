@@ -58,7 +58,8 @@ end
 const BEOS = BoussinesqEquationOfState
 
 Base.eltype(::BEOS{<:Any, FT}) where FT = FT
-Base.convert(FT::DataType, eos::BEOS) = BoussinesqEquationOfState(convert(FT, eos.seawater_polynomial), convert(FT, eos.reference_density))
+with_float_type(FT::DataType, eos::BEOS) = BoussinesqEquationOfState(convert(FT, eos.seawater_polynomial),
+                                                                     convert(FT, eos.reference_density))
 
 Base.summary(eos::BoussinesqEquationOfState{P, FT}) where {P, FT} =
     string("BoussinesqEquationOfState{$FT}")
