@@ -63,8 +63,8 @@ end
 
         eos = TEOS10EquationOfState(FT)
         # Test/check values from Roquet et al. (2014).
-        Θ = 10    # [C]
-        S = 30    # [g/kg]
+        Θ = 10.0    # [C]
+        S = 30.0    # [g/kg]
         Z = - 1e3 # [m]
 
         τ = SeawaterPolynomials.TEOS10.τ(Θ)
