@@ -33,7 +33,7 @@ const teos10_reference_heat_capacity = 3991.86795711963 # J kg⁻¹ K⁻¹
 
 Base.eltype(::TEOS10SeawaterPolynomial{FT}) where FT = FT
 Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomial{$FT}"
-Base.convert(FT::DataType, ::TEOS10SeawaterPolynomial) = TEOS10SeawaterPolynomial{FT}()
+with_float_type(FT::DataType, ::TEOS10SeawaterPolynomial) = TEOS10SeawaterPolynomial{FT}()
 
 """
     TEOS10SeawaterPolynomial(FT=Float64)
