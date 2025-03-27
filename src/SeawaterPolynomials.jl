@@ -57,7 +57,7 @@ end
 
 const BEOS = BoussinesqEquationOfState
 
-Base.convert(FT::Datatype, eos::BEOS) = BoussinesqEquationOfState(convert(FT, eos.seawater_polynomial), convert(FT, eos.reference_density))
+Base.convert(FT::DataType, eos::BEOS) = BoussinesqEquationOfState(convert(FT, eos.seawater_polynomial), convert(FT, eos.reference_density))
 
 Base.summary(eos::BoussinesqEquationOfState{P, FT}) where {P, FT} =
     string("BoussinesqEquationOfState{$FT}")

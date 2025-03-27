@@ -48,7 +48,7 @@ const EOS₂ = BoussinesqEquationOfState{<:SecondOrderSeawaterPolynomial}
 
 Base.eltype(::SecondOrderSeawaterPolynomial{FT}) where FT = FT
 Base.summary(::SecondOrderSeawaterPolynomial{FT}) where FT = "SecondOrderSeawaterPolynomial{$FT}"
-Base.convert(FT::Datatype, eos::SecondOrderSeawaterPolynomial) = 
+Base.convert(FT::DataType, eos::SecondOrderSeawaterPolynomial) = 
     SecondOrderSeawaterPolynomial{FT}(eos.R₁₀₀, 
                                       eos.R₀₁₀,
                                       eos.R₁₀₁,
