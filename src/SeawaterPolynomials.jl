@@ -122,7 +122,8 @@ fluid parcels. In many, but not all conditions in Earth's ocean (at temperatures
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
 """
-@inline thermal_expansion(Θ, Sᴬ, Z, eos::BEOS) = thermal_sensitivity(Θ, Sᴬ, Z, eos) / eos.reference_density
+@inline thermal_expansion(Θ, Sᴬ, Z, eos::BEOS{<:Any, FT}) where FT =
+    thermal_sensitivity(FT(Θ), FT(Sᴬ), FT(Z), eos) / eos.reference_density
 
 """
     haline_contraction(Θ, Sᴬ, Z, equation_of_state)
