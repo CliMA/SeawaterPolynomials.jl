@@ -144,11 +144,14 @@ end
     end
 end
 
-@testset "convert" begin
+@testset "with_float_type" begin
     for (FT, FT2) in zip((Float32, Float64), (Float64, Float32))
-        teos10 = instantiate_teos10_polynomial(FT)
-        test10 = convert(FT2, teos10)
-        @test eltype(teos10) == FT2
+        eos = TEOS10EquationOfState(FT)
+        @test eltype(eos) == FT
+
+        @show FT2
+        eos = SeawaterPolynomials.with_float_type(FT2, eos)
+        @test eltype(eos) == FT2
 
         for coefficient_set in (:Linear,
                                 :Cabbeling,
@@ -157,9 +160,11 @@ end
                                 :SecondOrder,
                                 :SimplestRealistic)
 
-            eos = instantiate_roquet_equation_of_state(FT, coefficient_set)
-            eos = convert(FT2, teos10)
-            @test eltype(teos10) == FT2
+            eos = RoquetEquationOfState(FT, coefficient_set)
+            @test eltype(eos) == FT
+
+            eos = SeawaterPolynomials.with_float_type(FT2, eos)
+            @test eltype(eos) == FT2
         end
     end
 end
