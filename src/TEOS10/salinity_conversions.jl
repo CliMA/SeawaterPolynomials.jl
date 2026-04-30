@@ -11,7 +11,7 @@
 
 #####
 ##### Sentinel values returned by GSW-C atlas routines for points outside the ocean (originally Matlab
-##### NaNs replaced with ±9e90 for `ndepth_ref` / `saar_ref`, and 9e15 for invalid scalar returns).
+##### NaNs replaced with ±9e90 inside `atlas.saar` / `atlas.ndepth`, and 9e15 for invalid scalar returns).
 #####
 
 const gsw_invalid_value       = 9.0e15
@@ -35,16 +35,18 @@ end
 #####
 ##### SAAR reference atlas
 #####
-##### The bundled binary blob (little-endian Float64, no header) packs five arrays back-to-back:
+##### The bundled binary blob (little-endian Float64, no header) packs five arrays back-to-back, in the
+##### order they are read into the `SAARAtlas` fields:
 #####
-#####     p_ref      [Np]                      pressure levels                                [dbar]
-#####     φ_ref      [Nφ]                      latitudes                                      [°N]
-#####     λ_ref      [Nλ]                      longitudes                                     [°E]
-#####     saar_ref   [Np × Nφ × Nλ]            absolute salinity anomaly ratio                [—]
-#####     ndepth_ref [Nφ × Nλ]                 maximum valid depth-index per (φ, λ) column    [—]
+#####     atlas.p      [Np]                pressure levels                                [dbar]
+#####     atlas.φ      [Nφ]                latitudes                                      [°N]
+#####     atlas.λ      [Nλ]                longitudes                                     [°E]
+#####     atlas.saar   [Np × Nφ × Nλ]      absolute salinity anomaly ratio                [—]
+#####     atlas.ndepth [Nφ × Nλ]           maximum valid depth-index per (φ, λ) column    [—]
 #####
-##### The Julia column-major layout `arr[k, j, i]` mirrors the GSW-C linear index
-##### `idz0 + Np*(idy0 + Nφ*idx0)` once 1-based.
+##### The Julia column-major layout `atlas.saar[k, j, i]` mirrors the GSW-C 0-based linear index
+##### `idz0 + Np*(idy0 + Nφ*idx0)` once 1-based — i.e. `(k, j, i)` here corresponds to GSW-C's
+##### `(idz0, idy0, idx0)`.
 #####
 
 const Nλ = 91
