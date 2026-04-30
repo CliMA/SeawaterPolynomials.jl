@@ -10,7 +10,7 @@
 #####
 
 """
-    struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial ends
+    struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
 
 A 55-term polynomial approximation to the TEOS-10 standard equation of state for seawater.
 """
