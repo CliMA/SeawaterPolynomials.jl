@@ -1,12 +1,3 @@
-module TEOS10
-
-export 
-    TEOS10SeawaterPolynomial,
-    TEOS10EquationOfState
-
-using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
-
-import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity
 
 #####
 ##### The TEOS-10 polynomial approximation implemented in this file has been translated
@@ -26,10 +17,10 @@ A 55-term polynomial approximation to the TEOS-10 standard equation of state for
 """
 struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
 
-# The constant, reference heat capacity that acts as a conversion factor between the TEOS10 
+# Reference heat capacity that acts as a conversion factor between the TEOS-10
 # conservative temperature and potential enthalpy. See equation 3.3.3 (section 3.3, page 27)
-# in the TEOS10 manual: http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
-const teos10_reference_heat_capacity = 3991.86795711963 # J kg⁻¹ K⁻¹
+# of the TEOS-10 manual: http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
+const cₚ⁰ = 3991.86795711963 # J kg⁻¹ K⁻¹
 
 Base.eltype(::TEOS10SeawaterPolynomial{FT}) where FT = FT
 Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomial{$FT}"
@@ -342,5 +333,3 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
       ((FT(β₃₂₀) * s + FT(β₂₂₀)) * s + FT(β₁₂₀)) * s + FT(β₀₂₀)) * τ +
      (((FT(β₄₁₀) * s + FT(β₃₁₀)) * s + FT(β₂₁₀)) * s + FT(β₁₁₀)) * s + FT(β₀₁₀)) * τ +
     ((((FT(β₅₀₀) * s + FT(β₄₀₀)) * s + FT(β₃₀₀)) * s + FT(β₂₀₀)) * s + FT(β₁₀₀)) * s + FT(β₀₀₀)
-
-end # module
