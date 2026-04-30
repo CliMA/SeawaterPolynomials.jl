@@ -14,10 +14,23 @@
 ##### NaNs replaced with ±9e90 for `ndepth_ref` / `saar_ref`, and 9e15 for invalid scalar returns).
 #####
 
-const gsw_invalid_value = 9.0e15
-const gsw_error_limit   = 1.0e10
+const gsw_invalid_value       = 9.0e15
+const gsw_error_limit         = 1.0e10
+const gsw_neighbour_threshold = 100.0   # cut-off between valid SAAR ratios (O(0.01)) and ±9e90 flags
+const panama_inset            = 0.001   # ε to keep samples strictly inside the Panama barrier domain
 
 @inline invalid(x) = abs(x) >= gsw_error_limit
+
+# Tuple-friendly version of `Base.searchsortedlast`. Returns the last index `k` with `t[k] ≤ x`, or `0`
+# if `x < t[1]`. Used for the small static lookup tables (panama, baltic) that we keep as `NTuple`s.
+@inline function _searchsortedlast(t::Tuple, x)
+    k = 0
+    @inbounds for i in 1:length(t)
+        t[i] > x && return k
+        k = i
+    end
+    return k
+end
 
 #####
 ##### SAAR reference atlas
@@ -83,18 +96,22 @@ function load_saar_atlas(path)
 end
 
 const SAAR_ATLAS = Ref{SAARAtlas{Vector{Float64}, Array{Float64,3}, Matrix{Float64}}}()
-const saar_data_path = joinpath(@__DIR__, "../../", "data", "gsw_saar_data.bin")
+
+# The atlas binary is delivered as a lazily-downloaded artifact (declared in `Artifacts.toml` and hosted
+# on `NumericalEarth/NumericalEarthArtifacts`). The download fires only on first `__init__`; on
+# subsequent runs the file is served from `~/.julia/artifacts/<git-tree-sha1>/`.
+saar_data_path() = joinpath(artifact"gsw_saar_data", "gsw_saar_data.bin")
 
 #####
 ##### Atlas geometry: Panama isthmus barrier and corner offsets for the bilinear cell.
 #####
 
-const panama_longitudes = [260.00, 272.59, 276.50, 278.65, 280.73, 292.00]
-const panama_latitudes  = [ 19.55,  13.97,   9.60,   8.10,   9.33,   3.40]
+const panama_longitudes = (260.00, 272.59, 276.50, 278.65, 280.73, 292.00)
+const panama_latitudes  = ( 19.55,  13.97,   9.60,   8.10,   9.33,   3.40)
 
 # Corner offsets used to build the (λ, φ) interpolation cell.
-const atlas_cell_offsets_i = [0, 1, 1, 0]
-const atlas_cell_offsets_j = [0, 0, 1, 1]
+const atlas_cell_offsets_i = (0, 1, 1, 0)
+const atlas_cell_offsets_j = (0, 0, 1, 1)
 
 #####
 ##### Atlas helpers
@@ -116,17 +133,17 @@ mean of the valid neighbours. Mirrors `gsw_add_mean`.
     N = 0
     S = zero(FT)
     for k in 1:4
-        N += ifelse(abs(d[k]) <= 100, 1, 0)
-        S += ifelse(abs(d[k]) <= 100, d[k], zero(FT))
+        N += ifelse(abs(d[k]) <= gsw_neighbour_threshold, 1, 0)
+        S += ifelse(abs(d[k]) <= gsw_neighbour_threshold, d[k], zero(FT))
     end
     m = ifelse(N == 0, zero(FT), S / N)
-    return ntuple(k -> ifelse(abs(d[k]) >= 100, m, d[k]), Val(4))
+    return ntuple(k -> ifelse(abs(d[k]) >= gsw_neighbour_threshold, m, d[k]), Val(4))
 end
 
 """
-    apply_panama_barrier(d, lon, lat, λr, φr, Δλ, Δφ)
+    apply_panama_barrier(d, λ, φ, λr, φr, Δλ, Δφ)
 
-In the Central American region the four atlas neighbours of a single `(lon, lat)` point may straddle the
+In the Central American region the four atlas neighbours of a single `(λ, φ)` point may straddle the
 Panama isthmus. Corners that lie on the wrong side of the barrier — or that carry a ±9e90 invalid flag —
 are replaced by the arithmetic mean of the valid same-side corners. Mirrors `gsw_add_barrier`.
 
@@ -145,17 +162,17 @@ are replaced by the arithmetic mean of the valid same-side corners. Mirrors `gsw
     φP = panama_latitudes
 
     # Side of the isthmus the (λ, φ) sample lies on.
-    k  = searchsortedlast(λP, λ)
+    k  = _searchsortedlast(λP, λ)
     r  = (λ - λP[k]) / (λP[k+1] - λP[k])
     sample_side = (φP[k] + r * (φP[k+1] - φP[k])) ≤ φ
 
     # Side of the isthmus for the cell corners (1, 4) on the western edge.
-    k  = searchsortedlast(λP, λr)
+    k  = _searchsortedlast(λP, λr)
     r  = (λr - λP[k]) / (λP[k+1] - λP[k])
     φW = φP[k] + r * (φP[k+1] - φP[k])
 
     # Side of the isthmus for the cell corners (2, 3) on the eastern edge.
-    k  = searchsortedlast(λP, λr + Δλ)
+    k  = _searchsortedlast(λP, λr + Δλ)
     r  = (λr + Δλ - λP[k]) / (λP[k+1] - λP[k])
     φE = φP[k] + r * (φP[k+1] - φP[k])
 
@@ -171,14 +188,14 @@ are replaced by the arithmetic mean of the valid same-side corners. Mirrors `gsw
 
     for k in 1:4
         same_side = sample_side == side[k]
-        valid     = abs(d[k]) <= 100 && same_side
+        valid     = abs(d[k]) <= gsw_neighbour_threshold && same_side
         nmean    += ifelse(valid, 1, 0)
         s        += ifelse(valid, d[k], zero(T))
     end
 
     m = ifelse(nmean == 0, zero(T), s / nmean)
 
-    return ntuple(k -> (abs(d[k]) >= T(1e10) || sample_side != side[k]) ? m : d[k], Val(4))
+    return ntuple(k -> (abs(d[k]) >= T(gsw_error_limit) || sample_side != side[k]) ? m : d[k], Val(4))
 end
 
 """
@@ -196,7 +213,7 @@ boundary polygons in [`baltic_absolute_salinity`](@ref). Mirrors `gsw_util_xinte
 - `y0`: linear interpolant of `(xs, ys)` at `x0`
 """
 @inline function linear_interpolate(xs, ys, x0)
-    k = searchsortedlast(xs, x0)
+    k = _searchsortedlast(xs, x0)
     return ys[k] + (x0 - xs[k]) * (ys[k+1] - ys[k]) / (xs[k+1] - xs[k])
 end
 
@@ -205,10 +222,10 @@ end
 #####
 
 # Baltic Sea boundary polygons, as in `gsw_sa_from_sp_baltic`.
-const baltic_west_longitudes = [12.6, 7.0, 26.0]
-const baltic_west_latitudes  = [50.0, 59.0, 69.0]
-const baltic_east_longitudes = [45.0, 26.0]
-const baltic_east_latitudes  = [50.0, 69.0]
+const baltic_west_longitudes = (12.6, 7.0, 26.0)
+const baltic_west_latitudes  = (50.0, 59.0, 69.0)
+const baltic_east_longitudes = (45.0, 26.0)
+const baltic_east_latitudes  = (50.0, 69.0)
 
 """
     baltic_absolute_salinity(Sᴾ, λ, φ)
@@ -270,7 +287,7 @@ Mirrors `gsw_saar`.
   algorithm for estimating absolute salinity. Ocean Science 8, 1123–1134.
 """
 function saar(p, λ, φ)
-    
+
     if isnan(φ) || isnan(λ) || isnan(p)
         return gsw_invalid_value
     end
@@ -278,18 +295,15 @@ function saar(p, λ, φ)
         return gsw_invalid_value
     end
 
-
-    λP  = panama_longitudes
-    φP  = panama_latitudes
-    Atl = SAAR_ATLAS[]
-    λ   = mod(λ, 360.0)
-    Δλ  = Atl.λ[2] - Atl.λ[1]
-    Δφ  = Atl.φ[2] - Atl.φ[1]
+    λP    = panama_longitudes
+    φP    = panama_latitudes
+    atlas = SAAR_ATLAS[]
+    λ     = mod(λ, 360.0)
 
     # 1-based lower-corner indices for the (λ, φ) cell.
-    i = floor(Int, (Nλ - 1) * (λ - Atl.λ[1]) / (Atl.λ[end] - Atl.λ[1])) + 1
-    j = floor(Int, (Nφ - 1) * (φ - Atl.φ[1]) / (Atl.φ[end] - Atl.φ[1])) + 1
-    
+    i = floor(Int, (Nλ - 1) * (λ - atlas.λ[1]) / (atlas.λ[end] - atlas.λ[1])) + 1
+    j = floor(Int, (Nφ - 1) * (φ - atlas.φ[1]) / (atlas.φ[end] - atlas.φ[1])) + 1
+
     # wrap around
     i = ifelse(i == Nλ, Nλ - 1, i)
     j = ifelse(j == Nφ, Nφ - 1, j)
@@ -300,7 +314,7 @@ function saar(p, λ, φ)
     # Maximum depth-index of the four atlas corners
     Nmax = -1.0
     for c in 1:4
-        nd = Atl.ndepth[j + δj[c], i + δi[c]]
+        nd = atlas.ndepth[j + δj[c], i + δi[c]]
         if 0.0 < nd < 1e90
             Nmax = max(Nmax, nd)
         end
@@ -308,17 +322,17 @@ function saar(p, λ, φ)
 
     Nmax == -1.0 && return 0.0   # well outside any ocean column → SAAR = 0
 
-    p = ifelse(p > Atl.p[Int(Nmax)], Atl.p[Int(Nmax)], p)
-    k = searchsortedlast(Atl.p, p)
+    p = ifelse(p > atlas.p[Int(Nmax)], atlas.p[Int(Nmax)], p)
+    k = searchsortedlast(atlas.p, p)
 
-    ξ = (λ - Atl.λ[i]) / (Atl.λ[i+1] - Atl.λ[i])
-    η = (φ - Atl.φ[j]) / (Atl.φ[j+1] - Atl.φ[j])
-    ζ = (p - Atl.p[k]) / (Atl.p[k+1] - Atl.p[k])
+    ξ = (λ - atlas.λ[i]) / (atlas.λ[i+1] - atlas.λ[i])
+    η = (φ - atlas.φ[j]) / (atlas.φ[j+1] - atlas.φ[j])
+    ζ = (p - atlas.p[k]) / (atlas.p[k+1] - atlas.p[k])
 
-    inside_panama = (λP[1] ≤ λ ≤ λP[end] - 0.001) && (φP[end] ≤ φ ≤ φP[1])
+    inside_panama = (λP[1] ≤ λ ≤ λP[end] - panama_inset) && (φP[end] ≤ φ ≤ φP[1])
 
-    rS⁺ = level_interpolation(Atl, i, j, k,   λ, φ, ξ, η, inside_panama)
-    rS⁻ = level_interpolation(Atl, i, j, k+1, λ, φ, ξ, η, inside_panama)
+    rS⁺ = level_interpolation(atlas, i, j, k,   λ, φ, ξ, η, inside_panama)
+    rS⁻ = level_interpolation(atlas, i, j, k+1, λ, φ, ξ, η, inside_panama)
 
     rS⁻ = ifelse(abs(rS⁻) >= gsw_error_limit, rS⁺, rS⁻)
 
@@ -328,16 +342,16 @@ end
 
 # Bilinear interpolation of the four `(atlas_cell_offsets_i, atlas_cell_offsets_j)` corners 
 # of one pressure level, with Panama-barrier or invalid-neighbour fill-in.
-@inline function level_interpolation(Atl, i, j, k, λ, φ, ξ, η, inside_panama)
+@inline function level_interpolation(atlas, i, j, k, λ, φ, ξ, η, inside_panama)
 
-    λr = Atl.λ[i]
-    φr = Atl.φ[j]
-    Δλ = Atl.λ[2] - Atl.λ[1]
-    Δφ = Atl.φ[2] - Atl.φ[1]
+    λr = atlas.λ[i]
+    φr = atlas.φ[j]
+    Δλ = atlas.λ[2] - atlas.λ[1]
+    Δφ = atlas.φ[2] - atlas.φ[1]
     δi = atlas_cell_offsets_i
     δj = atlas_cell_offsets_j
 
-    corners = ntuple(c -> Atl.saar[k, j + δj[c], i + δi[c]], Val(4))
+    corners = ntuple(c -> atlas.saar[k, j + δj[c], i + δi[c]], Val(4))
 
     corners = if inside_panama
         apply_panama_barrier(corners, λ, φ, λr, φr, Δλ, Δφ)
@@ -384,11 +398,11 @@ of https://github.com/TEOS-10/GSW-C.
   algorithm for estimating absolute salinity. Ocean Science 8, 1123–1134.
 """
 function Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ)
-    Sᴬ = baltic_absolute_salinity(Sᴾ, λ, φ)
-    invalid(Sᴬ) || return oftype(float(Sᴾ), Sᴬ)
+    Sᴬᴮ = baltic_absolute_salinity(Sᴾ, λ, φ)
+    invalid(Sᴬᴮ) || return oftype(float(Sᴾ), Sᴬᴮ)
 
-    rsaar = saar(float(p), float(λ), float(φ))
-    invalid(rsaar) && return oftype(float(Sᴾ), NaN)
+    rSAAR = saar(float(p), float(λ), float(φ))
+    invalid(rSAAR) && return oftype(float(Sᴾ), NaN)
 
-    return oftype(float(Sᴾ), uₚₛ * Sᴾ * (1 + rsaar))
+    return oftype(float(Sᴾ), uₚₛ * Sᴾ * (1 + rSAAR))
 end

@@ -3,7 +3,7 @@
 #####
 ##### Direct Julia translations of routines from `gsw_oceanographic_toolbox.c` of
 ##### https://github.com/TEOS-10/GSW-C, the canonical C implementation maintained by the TEOS-10 team.
-##### The salinity conversions (`Sᴬ_from_Sᴾ`) and the SAAR atlas live in `absolute_salinity.jl`.
+##### The salinity conversions (`Sᴬ_from_Sᴾ`) and the SAAR atlas live in `salinity_conversions.jl`.
 #####
 ##### Notation (TEOS-10 manual, §A.1):
 #####   Sᴬ : absolute salinity                      [g/kg]

@@ -8,6 +8,8 @@ export
     θᴾ_from_T,
     Sᴬ_from_Sᴾ
 
+using LazyArtifacts
+
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
 import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity
@@ -19,7 +21,7 @@ include("salinity_conversions.jl")
 # Populate the SAAR reference atlas from the bundled binary blob at module load time. The Ref holds an
 # immutable `SAARAtlas`, set once here and read-only thereafter.
 function __init__()
-    SAAR_ATLAS[] = load_saar_atlas(saar_data_path)
+    SAAR_ATLAS[] = load_saar_atlas(saar_data_path())
     return nothing
 end
 
