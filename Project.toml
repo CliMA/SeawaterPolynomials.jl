@@ -1,6 +1,6 @@
 name = "SeawaterPolynomials"
 uuid = "d496a93d-167e-4197-9f49-d3af4ff8fe40"
-version = "0.3.7"
+version = "0.4.0"
 authors = ["Climate Modeling Alliance and contributors"]
 
 [deps]
