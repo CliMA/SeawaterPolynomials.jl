@@ -4,9 +4,12 @@ version = "0.4.0"
 authors = ["Climate Modeling Alliance and contributors"]
 
 [deps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+GibbsSeaWater = "9a22fb26-0b63-4589-b28e-8f9d0b5c3d05"
 LazyArtifacts = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
 
 [compat]
+Adapt = "3, 4"
 GibbsSeaWater = "0.1.4"
 julia = "^1"
 

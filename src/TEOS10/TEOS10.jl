@@ -6,9 +6,12 @@ export
     Θ_from_θᴾ,
     Θ_from_T,
     θᴾ_from_T,
+    θᴾ_from_Θ,
     Sᴬ_from_Sᴾ
 
 using LazyArtifacts
+
+import Adapt
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 

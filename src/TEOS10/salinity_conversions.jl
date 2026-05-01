@@ -56,7 +56,7 @@ const Np = 45
 """
     SAARAtlas{V, A, M}
 
-Container for the TEOS-10 Absolute Salinity Anomaly Ratio reference atlas.
+Container for the TEOS-10 Absolute Salinity Anomaly Ratio reference atlas. 
 
 # Fields
 - `p`     : pressure levels                                [dbar]   (length `Np`)
@@ -65,15 +65,20 @@ Container for the TEOS-10 Absolute Salinity Anomaly Ratio reference atlas.
 - `saar`  : absolute salinity anomaly ratio                [—]      (`Np × Nφ × Nλ`)
 - `ndepth`: maximum valid depth-index per `(φ, λ)` column  [—]      (`Nφ × Nλ`)
 """
-struct SAARAtlas{V <: AbstractVector{Float64},
-                 A <: AbstractArray{Float64,3},
-                 M <: AbstractMatrix{Float64}}
+struct SAARAtlas{V, A, M}
     p      :: V
     φ      :: V
     λ      :: V
     saar   :: A
     ndepth :: M
 end
+
+Adapt.adapt_structure(to, atlas::SAARAtlas) =
+    SAARAtlas(Adapt.adapt(to, atlas.p),
+              Adapt.adapt(to, atlas.φ),
+              Adapt.adapt(to, atlas.λ),
+              Adapt.adapt(to, atlas.saar),
+              Adapt.adapt(to, atlas.ndepth))
 
 """
     load_saar_atlas(path)
@@ -268,17 +273,19 @@ end
 #####
 
 """
+    saar(atlas, p, λ, φ)
     saar(p, λ, φ)
 
-Return the Absolute Salinity Anomaly Ratio at sea pressure, longitude and latitude. The atlas is
-trilinearly interpolated on the bundled `Nλ × Nφ × Np` grid, with NaN-flag handling via
-[`mean_of_valid_neighbours`](@ref) and Panama-isthmus handling via [`apply_panama_barrier`](@ref).
+Return the Absolute Salinity Anomaly Ratio at sea pressure, longitude and latitude, by trilinearly
+interpolating `atlas` on its bundled `Nλ × Nφ × Np` grid. NaN-flag handling is delegated to
+[`mean_of_valid_neighbours`](@ref) and Panama-isthmus handling to [`apply_panama_barrier`](@ref).
 Mirrors `gsw_saar`.
 
 # Inputs
-- `p`: sea pressure  [dbar]
-- `λ`: longitude     [°E]
-- `φ`: latitude      [°N]
+- `atlas`: [`SAARAtlas`](@ref); CPU or device-resident
+- `p`    : sea pressure  [dbar]
+- `λ`    : longitude     [°E]
+- `φ`    : latitude      [°N]
 
 # Output
 - `r_SAAR`: absolute salinity anomaly ratio [unitless], `gsw_invalid_value` for points the atlas cannot
@@ -288,7 +295,7 @@ Mirrors `gsw_saar`.
 - McDougall, T. J., Jackett, D. R., Millero, F. J., Pawlowicz, R., Barker, P. M., 2012: A global
   algorithm for estimating absolute salinity. Ocean Science 8, 1123–1134.
 """
-function saar(p, λ, φ)
+function saar(atlas::SAARAtlas, p, λ, φ)
 
     if isnan(φ) || isnan(λ) || isnan(p)
         return gsw_invalid_value
@@ -297,10 +304,9 @@ function saar(p, λ, φ)
         return gsw_invalid_value
     end
 
-    λP    = panama_longitudes
-    φP    = panama_latitudes
-    atlas = SAAR_ATLAS[]
-    λ     = mod(λ, 360.0)
+    λP = panama_longitudes
+    φP = panama_latitudes
+    λ  = mod(λ, oftype(λ, 360))
 
     # 1-based lower-corner indices for the (λ, φ) cell.
     i = floor(Int, (Nλ - 1) * (λ - atlas.λ[1]) / (atlas.λ[end] - atlas.λ[1])) + 1
@@ -342,6 +348,9 @@ function saar(p, λ, φ)
     return ifelse(abs(out) >= gsw_error_limit, gsw_invalid_value, out)
 end
 
+# CPU-side convenience: read the bundled default atlas from the global Ref.
+saar(p, λ, φ) = saar(SAAR_ATLAS[], p, λ, φ)
+
 # Bilinear interpolation of the four `(atlas_cell_offsets_i, atlas_cell_offsets_j)` corners 
 # of one pressure level, with Panama-barrier or invalid-neighbour fill-in.
 @inline function level_interpolation(atlas, i, j, k, λ, φ, ξ, η, inside_panama)
@@ -372,6 +381,7 @@ end
 #####
 
 """
+    Sᴬ_from_Sᴾ(atlas, Sᴾ, p, λ, φ)
     Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ)
 
 Return the TEOS-10 absolute salinity ``Sᴬ`` from practical salinity, sea pressure, longitude and
@@ -382,15 +392,21 @@ Sᴬ = (Sₒ/35)\\, Sᴾ\\, (1 + r_{\\mathrm{SAAR}}) ,
 ```
 
 where ``Sₒ = 35.16504`` g/kg is the standard ocean reference salinity and ``r_{\\mathrm{SAAR}}`` is
-interpolated from the bundled global atlas (see [`saar`](@ref)). An analytic correction is applied
-inside the Baltic Sea polygon (see [`baltic_absolute_salinity`](@ref)). Translation of `gsw_sa_from_sp`
-of https://github.com/TEOS-10/GSW-C.
+interpolated from `atlas` (see [`saar`](@ref)). An analytic correction is applied inside the Baltic Sea
+polygon (see [`baltic_absolute_salinity`](@ref)). Translation of `gsw_sa_from_sp` of
+https://github.com/TEOS-10/GSW-C.
+
+The first method is the GPU-callable form: `atlas` is passed explicitly so the function carries no
+global state and can be invoked inside a kernel on a device-resident atlas obtained via
+`Adapt.adapt(arch, atlas)`. The zero-atlas method reads the bundled default from the global
+`SAAR_ATLAS` Ref and is intended for scalar CPU use.
 
 # Inputs
-- `Sᴾ`: practical salinity, PSS-78  [unitless]
-- `p` : sea pressure                [dbar]
-- `λ` : longitude                   [°E]
-- `φ` : latitude                    [°N]
+- `atlas`: [`SAARAtlas`](@ref); CPU or device-resident
+- `Sᴾ`   : practical salinity, PSS-78  [unitless]
+- `p`    : sea pressure                [dbar]
+- `λ`    : longitude                   [°E]
+- `φ`    : latitude                    [°N]
 
 # Output
 - `Sᴬ`: absolute salinity [g/kg], `NaN` when the atlas cannot resolve the lookup point
@@ -399,12 +415,15 @@ of https://github.com/TEOS-10/GSW-C.
 - McDougall, T. J., Jackett, D. R., Millero, F. J., Pawlowicz, R., Barker, P. M., 2012: A global
   algorithm for estimating absolute salinity. Ocean Science 8, 1123–1134.
 """
-function Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ)
+function Sᴬ_from_Sᴾ(atlas::SAARAtlas, Sᴾ, p, λ, φ)
     Sᴬᴮ = baltic_absolute_salinity(Sᴾ, λ, φ)
     invalid(Sᴬᴮ) || return oftype(float(Sᴾ), Sᴬᴮ)
 
-    rSAAR = saar(float(p), float(λ), float(φ))
+    rSAAR = saar(atlas, float(p), float(λ), float(φ))
     invalid(rSAAR) && return oftype(float(Sᴾ), NaN)
 
     return oftype(float(Sᴾ), uₚₛ * Sᴾ * (1 + rSAAR))
 end
+
+# CPU-side convenience: read the bundled default atlas from the global Ref.
+Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ) = Sᴬ_from_Sᴾ(SAAR_ATLAS[], Sᴾ, p, λ, φ)

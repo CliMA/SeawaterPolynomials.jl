@@ -266,3 +266,77 @@ https://github.com/TEOS-10/GSW-C.
     θᴾ = θᴾ_from_T(Sᴬ, T, p)
     return Θ_from_θᴾ(Sᴬ, θᴾ)
 end
+
+#####
+##### Potential temperature from conservative temperature (gsw_pt_from_ct)
+#####
+
+"""
+    θᴾ_from_Θ(Sᴬ, Θ)
+
+Return the TEOS-10 potential temperature ``θᴾ`` referenced to ``p = 0`` dbar from absolute salinity and
+conservative temperature. A rational-polynomial first guess on ``(s_1, Θ)``, with ``s_1 = Sᴬ/u_{PS}``,
+is followed by 1.5 modified Newton–Raphson iterations on the residual
+``Θ_{\\mathrm{from}\\,θᴾ}(Sᴬ, θᴾ) - Θ``. The first iteration uses the analytic ``∂θᴾ/∂Θ`` of the
+rational polynomial; the second uses the entropy-based form ``-c_p^0 / [(T_0 + θᴾ)\\, ∂²g/∂(θᴾ)²]``
+evaluated at the iterate midpoint. Agrees with the GSW-C reference to within machine precision
+throughout the oceanographic state space. Direct translation of `gsw_pt_from_ct` of
+https://github.com/TEOS-10/GSW-C.
+
+# Inputs
+- `Sᴬ`: absolute salinity                          [g/kg]
+- `Θ` : conservative temperature                   [°C]
+
+# Output
+- `θᴾ`: potential temperature, p_ref = 0 dbar      [°C]
+
+# References
+- IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater – 2010.
+  http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
+"""
+@inline function θᴾ_from_Θ(Sᴬ, Θ)
+    FT = promote_type(typeof(Sᴬ), typeof(Θ))
+    return _θᴾ_from_Θ(convert(FT, Sᴬ), convert(FT, Θ))
+end
+
+@inline function _θᴾ_from_Θ(Sᴬ::FT, Θ::FT) where FT
+    a₀ = FT(-1.446013646344788e-2)
+    a₁ = FT(-3.305308995852924e-3)
+    a₂ = FT( 1.062415929128982e-4)
+    a₃ = FT( 9.477566673794488e-1)
+    a₄ = FT( 2.166591947736613e-3)
+    a₅ = FT( 3.828842955039902e-3)
+    b₀ = one(FT)
+    b₁ = FT( 6.506097115635800e-4)
+    b₂ = FT( 3.830289486850898e-3)
+    b₃ = FT( 1.247811760368034e-6)
+
+    s₁  = Sᴬ / FT(uₚₛ)
+    a₅Θ = a₅ * Θ
+    b₃Θ = b₃ * Θ
+
+    # Rational-polynomial first guess on (s₁, Θ).
+    χ  = a₃ + a₄ * s₁ + a₅Θ
+    ν  = a₀ + s₁ * (a₁ + a₂ * s₁) + Θ * χ
+    δ  = b₀ + b₁ * s₁ + Θ * (b₂ + b₃Θ)
+    θᴾ = ν / δ
+
+    # Analytic ∂θᴾ/∂Θ of the rational polynomial.
+    dθᴾ_Θ = (χ + a₅Θ - (b₂ + b₃Θ + b₃Θ) * θᴾ) / δ
+
+    # 1.5 modified Newton–Raphson iterations on Θ_from_θᴾ; the second derivative comes from the
+    # entropy-based form using ∂²g/∂(θᴾ)² at the iterate midpoint.
+    ΔΘ  = _Θ_from_θᴾ(Sᴬ, θᴾ) - Θ
+    θᴾⁿ = θᴾ
+    θᴾ  = θᴾⁿ - ΔΘ * dθᴾ_Θ
+
+    θᴾᵐ   = FT(0.5) * (θᴾ + θᴾⁿ)
+    dθᴾ_Θ = -FT(cₚ⁰) / ((θᴾᵐ + FT(T₀)) * _∂θᴾ²_g(Sᴬ, θᴾᵐ))
+
+    θᴾ  = θᴾⁿ - ΔΘ * dθᴾ_Θ
+    ΔΘ  = _Θ_from_θᴾ(Sᴬ, θᴾ) - Θ
+    θᴾⁿ = θᴾ
+    θᴾ  = θᴾⁿ - ΔΘ * dθᴾ_Θ
+
+    return θᴾ
+end

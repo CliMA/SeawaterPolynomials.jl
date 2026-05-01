@@ -111,13 +111,15 @@ end
     ]
 
     @testset "pinned points: $label" for (Sᴬ, T, p, Sᴾ, λ, φ, label) in pinned_points
+        Θ = GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)
         @test Θ_from_θᴾ(Sᴬ, T)        ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, T)        atol=0 rtol=1e-12
         @test θᴾ_from_T(Sᴬ, T, p)     ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p)     atol=0 rtol=1e-12
         @test Θ_from_T(Sᴬ, T, p)      ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)      atol=0 rtol=1e-12
+        @test θᴾ_from_Θ(Sᴬ, Θ)        ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)        atol=0 rtol=1e-12
         @test Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ) ≈ GibbsSeaWater.gsw_sa_from_sp(Sᴾ, p, λ, φ)  atol=0 rtol=1e-12
     end
 
-    # Random sweep over the standard oceanographic envelope. 
+    # Random sweep over the standard oceanographic envelope.
     # The fixed seed keeps CI deterministic.
     @testset "random sweep" begin
         Random.seed!(20260429)
@@ -129,10 +131,12 @@ end
             Sᴾ = 30 + 10 * rand()
             λ  = 360 * rand()
             φ  = -85 + 175 * rand()
+            Θ  = GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)
 
             @test Θ_from_θᴾ(Sᴬ, θᴾ)   ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)   atol=0 rtol=1e-12
             @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) atol=0 rtol=1e-12
             @test Θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  atol=0 rtol=1e-12
+            @test θᴾ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    atol=0 rtol=1e-12
 
             Sᴬˢ = Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ)
             Sᴬᴳ = GibbsSeaWater.gsw_sa_from_sp(Sᴾ, p, λ, φ)
@@ -141,6 +145,46 @@ end
                 @test Sᴬˢ ≈ Sᴬᴳ atol=0 rtol=1e-12
             end
         end
+    end
+end
+
+@testset "Atlas-as-argument API matches global-Ref API" begin
+    atlas = SeawaterPolynomials.TEOS10.SAAR_ATLAS[]
+
+    pinned_points = [
+        (35.0,    0.0, -30.0,  45.0),
+        (34.5,  100.0, 200.0,  -5.0),
+        (34.9, 4000.0,  20.0,  60.0),
+        (33.0, 1500.0, -20.0, -60.0),
+        ( 8.0,    0.0,  20.0,  60.0),  # Baltic
+        (35.0,    0.0, -78.0,   8.0),  # Caribbean / Panama
+        (34.8,  100.0, -82.0,  10.0),  # north of Panama isthmus
+    ]
+
+    for (Sᴾ, p, λ, φ) in pinned_points
+        @test SeawaterPolynomials.TEOS10.saar(atlas, p, λ, φ) ===
+              SeawaterPolynomials.TEOS10.saar(p, λ, φ)
+        @test Sᴬ_from_Sᴾ(atlas, Sᴾ, p, λ, φ) === Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ)
+    end
+end
+
+@testset "SAARAtlas Adapt.adapt_structure" begin
+    import Adapt
+    atlas = SeawaterPolynomials.TEOS10.SAAR_ATLAS[]
+
+    # Adapt to Array (a no-op on host arrays). Verifies the adapt_structure path is wired and that
+    # the resulting atlas has the same field types and content as the original.
+    adapted = Adapt.adapt(Array, atlas)
+    @test adapted isa SeawaterPolynomials.TEOS10.SAARAtlas
+    @test adapted.p      == atlas.p
+    @test adapted.φ      == atlas.φ
+    @test adapted.λ      == atlas.λ
+    @test adapted.saar   == atlas.saar
+    @test adapted.ndepth == atlas.ndepth
+
+    # Lookups against the adapted atlas must agree with the global-Ref API.
+    for (p, λ, φ) in [(0.0, -30.0, 45.0), (4000.0, 20.0, 60.0), (100.0, -82.0, 10.0)]
+        @test Sᴬ_from_Sᴾ(adapted, 35.0, p, λ, φ) === Sᴬ_from_Sᴾ(35.0, p, λ, φ)
     end
 end
 
