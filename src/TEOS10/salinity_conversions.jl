@@ -59,11 +59,11 @@ const Np = 45
 Container for the TEOS-10 Absolute Salinity Anomaly Ratio reference atlas. 
 
 # Fields
-- `p`     : pressure levels                                [dbar]   (length `Np`)
-- `φ`     : latitudes                                      [°N]     (length `Nφ`)
-- `λ`     : longitudes                                     [°E]     (length `Nλ`)
-- `saar`  : absolute salinity anomaly ratio                [—]      (`Np × Nφ × Nλ`)
-- `ndepth`: maximum valid depth-index per `(φ, λ)` column  [—]      (`Nφ × Nλ`)
+- `p`     : pressure levels  `[dbar]`,  length `Np`
+- `φ`     : latitudes        `[°N]`,    length `Nφ`
+- `λ`     : longitudes       `[°E]`,    length `Nλ`
+- `saar`  : absolute salinity anomaly ratio,                size `Np × Nφ × Nλ`
+- `ndepth`: maximum valid depth-index per `(φ, λ)` column,  size `Nφ × Nλ`
 """
 struct SAARAtlas{V, A, M}
     p      :: V
