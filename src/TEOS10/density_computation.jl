@@ -19,7 +19,7 @@ struct TEOS10SeawaterPolynomial{FT} <: AbstractSeawaterPolynomial end
 # Reference heat capacity that acts as a conversion factor between the TEOS-10
 # conservative temperature and potential enthalpy. See equation 3.3.3 (section 3.3, page 27)
 # of the TEOS-10 manual: http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
-const cₚ⁰ = 3991.86795711963 # J kg⁻¹ K⁻¹
+const teos10_reference_heat_capacity = 3991.86795711963 # J kg⁻¹ K⁻¹
 
 Base.eltype(::TEOS10SeawaterPolynomial{FT}) where FT = FT
 Base.summary(::TEOS10SeawaterPolynomial{FT}) where FT = "TEOS10SeawaterPolynomial{$FT}"

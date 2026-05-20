@@ -151,6 +151,7 @@ Direct translation of `gsw_ct_from_pt` of https://github.com/TEOS-10/GSW-C.
 end
 
 @inline function _Θ_from_θᴾ(Sᴬ::FT, θᴾ::FT) where FT
+    cₚ⁰ = teos10_reference_heat_capacity
     x² = FT(rS) * Sᴬ
     x  = sqrt(x²)
     y  = θᴾ * FT(0.025)
@@ -213,6 +214,7 @@ of https://github.com/TEOS-10/GSW-C.
 end
 
 @inline function _θᴾ_from_T(Sᴬ::FT, T::FT, p::FT) where FT
+    cₚ⁰ = teos10_reference_heat_capacity
     s₁ = Sᴬ / FT(uₚₛ)
 
     θ₀ = T + p*(FT(8.65483913395442e-6)  -
@@ -300,6 +302,7 @@ https://github.com/TEOS-10/GSW-C.
 end
 
 @inline function _θᴾ_from_Θ(Sᴬ::FT, Θ::FT) where FT
+    cₚ⁰ = teos10_reference_heat_capacity
     a₀ = FT(-1.446013646344788e-2)
     a₁ = FT(-3.305308995852924e-3)
     a₂ = FT( 1.062415929128982e-4)
