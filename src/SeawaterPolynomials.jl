@@ -156,7 +156,7 @@ of conservative temperature, absolute salinity, and geopotential depth.
 abstract type AbstractSeawaterPolynomial end
 
 include("SecondOrderSeawaterPolynomials.jl")
-include("TEOS10.jl")
+include("TEOS10/TEOS10.jl")
 
 using .SecondOrderSeawaterPolynomials
 using .TEOS10
