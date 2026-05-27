@@ -169,17 +169,17 @@ are replaced by the arithmetic mean of the valid same-side corners. Mirrors `gsw
     φP = panama_latitudes
 
     # Side of the isthmus the (λ, φ) sample lies on.
-    k  = _searchsortedlast(λP, λ)
+    k  = clamp(_searchsortedlast(λP, λ), 1, length(λP) - 1)
     r  = (λ - λP[k]) / (λP[k+1] - λP[k])
     sample_side = (φP[k] + r * (φP[k+1] - φP[k])) ≤ φ
 
     # Side of the isthmus for the cell corners (1, 4) on the western edge.
-    k  = _searchsortedlast(λP, λr)
+    k  = clamp(_searchsortedlast(λP, λr), 1, length(λP) - 1)
     r  = (λr - λP[k]) / (λP[k+1] - λP[k])
     φW = φP[k] + r * (φP[k+1] - φP[k])
 
     # Side of the isthmus for the cell corners (2, 3) on the eastern edge.
-    k  = _searchsortedlast(λP, λr + Δλ)
+    k  = clamp(_searchsortedlast(λP, λr + Δλ), 1, length(λP) - 1)
     r  = (λr + Δλ - λP[k]) / (λP[k+1] - λP[k])
     φE = φP[k] + r * (φP[k+1] - φP[k])
 
