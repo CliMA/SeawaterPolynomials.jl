@@ -1,8 +1,10 @@
 module TEOS10
 
-export 
+export
     TEOS10SeawaterPolynomial,
-    TEOS10EquationOfState
+    TEOS10EquationOfState,
+    conservative_temperature_freezing,
+    in_situ_temperature_freezing
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
@@ -342,5 +344,153 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
       ((FT(β₃₂₀) * s + FT(β₂₂₀)) * s + FT(β₁₂₀)) * s + FT(β₀₂₀)) * τ +
      (((FT(β₄₁₀) * s + FT(β₃₁₀)) * s + FT(β₂₁₀)) * s + FT(β₁₁₀)) * s + FT(β₀₁₀)) * τ +
     ((((FT(β₅₀₀) * s + FT(β₄₀₀)) * s + FT(β₃₀₀)) * s + FT(β₂₀₀)) * s + FT(β₁₀₀)) * s + FT(β₀₀₀)
+
+#####
+##### Freezing temperature of seawater
+#####
+##### TEOS-10 polynomial approximations to the freezing temperature, translated into Julia
+##### from the GSW (Gibbs-SeaWater) toolbox functions `gsw_CT_freezing_poly` and
+##### `gsw_t_freezing_poly`. The polynomials and their coefficients are documented in
+#####
+#####   McDougall, T. J., Barker, P. M., Feistel, R., and Galton-Fenzi, B. K. (2014):
+#####   Melting of ice and sea ice into seawater, and frazil ice formation.
+#####   Journal of Physical Oceanography, 44, 1751-1775.
+#####
+##### Both polynomials are functions of absolute salinity `Sᴬ` and sea pressure `p`. As
+##### elsewhere in this package the vertical coordinate is the geopotential height `Z`
+##### (≤ 0, in meters), which is mapped to sea pressure via the hydrostatic approximation
+##### `p [dbar] ≈ -Z [m]` (1 dbar ≈ 1 m). This is the same approximation embedded in the
+##### normalization `ζ(Z) = -Z / 1e4` used by the density polynomial above: the freezing
+##### polynomials' pressure variable `p_r = p * 1e-4` is identical to `ζ(Z)`.
+#####
+##### `saturation_fraction` is the fraction (between 0 and 1) of dissolved air in the
+##### seawater, used to correct the freezing temperature for the effect of dissolved air.
+#####
+
+# Coefficients of `gsw_CT_freezing_poly` (conservative temperature freezing point), c0…c22.
+const CONSERVATIVE_TEMPERATURE_FREEZING_COEFFICIENTS = (
+     0.017947064327968736,
+    -6.076099099929818,
+     4.883198653547851,
+    -11.88081601230542,
+     13.34658511480257,
+    -8.722761043208607,
+     2.082038908808201,
+    -7.389420998107497,
+    -2.110913185058476,
+     0.2295491578006229,
+    -0.9891538123307282,
+    -0.08987150128406496,
+     0.3831132432071728,
+     1.054318231187074,
+     1.065556599652796,
+    -0.7997496801694032,
+     0.3850133554097069,
+    -2.078616693017569,
+     0.8756340772729538,
+    -2.079022768390933,
+     1.596435439942262,
+     0.1338002171109174,
+     1.242891021876471)
+
+# Coefficients of `gsw_t_freezing_poly` (in situ temperature freezing point), c0…c22.
+const IN_SITU_TEMPERATURE_FREEZING_COEFFICIENTS = (
+     0.002519,
+    -5.946302841607319,
+     4.136051661346983,
+    -1.115150523403847e1,
+     1.476878746184548e1,
+    -1.088873263630961e1,
+     2.961018839640730,
+    -7.433320943962606,
+    -1.561578562479883,
+     4.073774363480365e-2,
+     1.158414435887717e-2,
+    -4.122639292422863e-1,
+    -1.123186915628260e-1,
+     5.715012685553502e-1,
+     2.021682115652684e-1,
+     4.140574258089767e-2,
+    -6.034228641903586e-1,
+    -1.205825928146808e-2,
+    -2.812172968619369e-1,
+     1.877244474023750e-2,
+    -1.204395563789007e-1,
+     2.349147739749606e-1,
+     2.748444541144219e-3)
+
+# Shared evaluation of the freezing-temperature polynomial. `Sᴬ` is absolute salinity,
+# `p_r = -Z / 1e4` the normalized pressure, and `c` the 23 polynomial coefficients (c0…c22).
+@inline function _freezing_polynomial(Sᴬ::FT, p_r::FT, c::NTuple{23, FT}) where FT
+    c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22 = c
+
+    sa_r = Sᴬ * FT(1e-2)
+    x    = sqrt(sa_r)
+
+    return c0 +
+        sa_r * (c1 + x * (c2 + x * (c3 + x * (c4 + x * (c5 + c6 * x))))) +
+        p_r * (c7 + p_r * (c8 + c9 * p_r)) +
+        sa_r * p_r * (c10 + p_r * (c12 + p_r * (c15 + c21 * sa_r)) +
+                      sa_r * (c13 + c17 * p_r + c19 * sa_r) +
+                      x * (c11 + p_r * (c14 + c18 * p_r) + sa_r * (c16 + c20 * p_r + c22 * sa_r)))
+end
+
+"""
+    conservative_temperature_freezing(Sᴬ, Z; saturation_fraction=0)
+
+Return the conservative temperature [°C] at which seawater with absolute salinity `Sᴬ`
+[g/kg] at geopotential height `Z` [m] begins to freeze. `saturation_fraction` is the
+fraction (between 0 and 1) of dissolved air in the seawater.
+
+This is a TEOS-10 polynomial approximation translated from the GSW toolbox function
+`gsw_CT_freezing_poly`. The geopotential height `Z` (≤ 0) is converted to sea pressure
+via the hydrostatic approximation `p [dbar] ≈ -Z [m]`, consistent with the density
+polynomial in this module.
+"""
+@inline function conservative_temperature_freezing(Sᴬ, Z; saturation_fraction=0)
+    FT = float(promote_type(typeof(Sᴬ), typeof(Z), typeof(saturation_fraction)))
+    Sᴬ, Z, sf = convert(FT, Sᴬ), convert(FT, Z), convert(FT, saturation_fraction)
+
+    p_r = - Z * FT(1e-4)
+    c = map(FT, CONSERVATIVE_TEMPERATURE_FREEZING_COEFFICIENTS)
+    Θf = _freezing_polynomial(Sᴬ, p_r, c)
+
+    # Correction for the effects of dissolved air
+    a   = FT(0.014289763856964)
+    b   = FT(0.057000649899720)
+    Sₛₒ = FT(35.16504) # standard ocean reference salinity [g/kg]
+
+    return Θf - sf * FT(1e-3) * (FT(2.4) - a * Sᴬ) * (1 + b * (1 - Sᴬ / Sₛₒ))
+end
+
+"""
+    in_situ_temperature_freezing(Sᴬ, Z; saturation_fraction=0)
+
+Return the in situ temperature [°C] at which seawater with absolute salinity `Sᴬ` [g/kg]
+at geopotential height `Z` [m] begins to freeze. `saturation_fraction` is the fraction
+(between 0 and 1) of dissolved air in the seawater.
+
+This is the standalone in-situ-temperature freezing polynomial documented in the GSW
+toolbox source for `gsw_t_freezing_poly`, and is accurate to within ≈3×10⁻⁴ °C of the
+exact TEOS-10 freezing temperature over the oceanographic range. (The GSW
+`gsw_t_freezing_poly` function itself instead evaluates `conservative_temperature_freezing`
+and converts the result from conservative to in-situ temperature via the full Gibbs
+function, which is not available in this package; that route differs from this direct
+polynomial at the same ≈10⁻⁴ °C level.)
+
+The geopotential height `Z` (≤ 0) is converted to sea pressure via the hydrostatic
+approximation `p [dbar] ≈ -Z [m]`, consistent with the density polynomial in this module.
+"""
+@inline function in_situ_temperature_freezing(Sᴬ, Z; saturation_fraction=0)
+    FT = float(promote_type(typeof(Sᴬ), typeof(Z), typeof(saturation_fraction)))
+    Sᴬ, Z, sf = convert(FT, Sᴬ), convert(FT, Z), convert(FT, saturation_fraction)
+
+    p_r = - Z * FT(1e-4)
+    c = map(FT, IN_SITU_TEMPERATURE_FREEZING_COEFFICIENTS)
+    Tf = _freezing_polynomial(Sᴬ, p_r, c)
+
+    # Correction for the effects of dissolved air
+    return Tf - sf * FT(1e-3) * (FT(2.4) - Sᴬ / FT(70.33008))
+end
 
 end # module

@@ -82,6 +82,45 @@ end
 
 end
 
+@testset "Freezing temperature" begin
+    import SeawaterPolynomials.TEOS10: conservative_temperature_freezing, in_situ_temperature_freezing
+
+    # Reference values, with the geopotential height Z = -p [m ≈ dbar]. Each tuple is
+    # (Sᴬ, Z, saturation_fraction, CT_freezing, t_freezing).
+    #
+    # The CT_freezing column is gsw.CT_freezing_poly(Sᴬ, p, sf) from the GSW-Python toolbox
+    # (gsw 3.6.x); our `conservative_temperature_freezing` reproduces it to machine precision.
+    #
+    # The t_freezing column is the standalone in-situ-temperature freezing polynomial (the
+    # direct polynomial documented in GSW's gsw_t_freezing_poly source). It is accurate to
+    # ~3e-4 °C against the exact gsw.t_freezing; the GSW gsw_t_freezing_poly function instead
+    # routes through a CT→t conversion (requiring the full Gibbs function), so it differs from
+    # this direct polynomial at that ~1e-4 °C level.
+    reference_values = (
+        (35.0,  -300.0, 0.0, -2.13822778628046,   -2.13578432707088),
+        (35.0,  -300.0, 1.0, -2.14012815279748,   -2.13768667371971),
+        (30.0,     0.0, 0.0, -1.61856867110253,   -1.62756358904631),
+        (33.0,  -100.0, 0.5, -1.86841270639344,   -1.87230317368548),
+        (34.7, -1000.0, 0.0, -2.67353983508005,   -2.65703117757126),
+        ( 0.0,     0.0, 0.0,  0.0179470643279687,  0.002519),
+    )
+
+    for (Sᴬ, Z, sf, Θf, Tf) in reference_values
+        @test conservative_temperature_freezing(Sᴬ, Z, saturation_fraction=sf) ≈ Θf
+        @test in_situ_temperature_freezing(Sᴬ, Z, saturation_fraction=sf) ≈ Tf
+    end
+
+    # Default saturation_fraction is 0
+    @test conservative_temperature_freezing(35.0, -300.0) == conservative_temperature_freezing(35.0, -300.0, saturation_fraction=0)
+    @test in_situ_temperature_freezing(35.0, -300.0) == in_situ_temperature_freezing(35.0, -300.0, saturation_fraction=0)
+
+    # Float type is preserved
+    for FT in (Float64, Float32)
+        @test conservative_temperature_freezing(FT(35), FT(-300)) isa FT
+        @test in_situ_temperature_freezing(FT(35), FT(-300)) isa FT
+    end
+end
+
 @testset "show" begin
     show_polynomial_string = repr(RoquetSeawaterPolynomial(:SecondOrder))
     R₀₁₀ = 0.182e-1
