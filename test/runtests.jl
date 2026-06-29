@@ -49,10 +49,21 @@ end
             @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == 0
             @test SeawaterPolynomials.haline_sensitivity(0, 0, 0, eos) ==
                     eos.seawater_polynomial.R₁₀₀
+            # thermal_sensitivity ≡ -∂ρ/∂Θ, so at the origin it equals -R₀₁₀.
             @test SeawaterPolynomials.thermal_sensitivity(0, 0, 0, eos) ==
-                    eos.seawater_polynomial.R₀₁₀
+                    - eos.seawater_polynomial.R₀₁₀
         end
     end
+
+    # The thermal sensitivity coefficient is -∂ρ/∂Θ (see the `thermal_sensitivity`
+    # docstring and the TEOS10 implementation), so `thermal_expansion` must be positive
+    # for warm water where density decreases with temperature (R₀₁₀ < 0 for `:Linear`).
+    eos = RoquetEquationOfState(:Linear)
+    Θ, Sᴬ, Z = 10.0, 35.0, -100.0
+    @test SeawaterPolynomials.thermal_sensitivity(Θ, Sᴬ, Z, eos) ==
+            - eos.seawater_polynomial.R₀₁₀
+    @test SeawaterPolynomials.thermal_sensitivity(Θ, Sᴬ, Z, eos) > 0
+    @test SeawaterPolynomials.thermal_expansion(Θ, Sᴬ, Z, eos) > 0
 
 end
 
