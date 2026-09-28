@@ -1,10 +1,13 @@
 using
     Test,
+    Random,
     SeawaterPolynomials,
     SeawaterPolynomials.SecondOrderSeawaterPolynomials,
     SeawaterPolynomials.TEOS10
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
+
+import GibbsSeaWater
 
 """ Test instantiation of a RoquetSeawaterPolynomial."""
 function instantiate_roquet_polynomial(FT, coefficient_set)
@@ -94,6 +97,73 @@ end
     test_polynomial_string =
         "ρ' = $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
     @test show_polynomial_string == test_polynomial_string
+end
+
+@testset "TEOS-10 temperature conversions vs GibbsSeaWater" begin
+    pinned_points = [
+      # (Sᴬ,   T,      p,    label)
+        (35.0, 10.0,    0.0, "mid Atlantic surface"),
+        (34.5, 20.0,  100.0, "equatorial Pacific"),
+        (34.9,  2.0, 4000.0, "NE Atlantic deep"),
+        (33.0, -1.0, 1500.0, "Southern Ocean"),
+        ( 8.0,  5.0,    0.0, "Baltic Sea"),
+        (35.0, 25.0,    0.0, "Caribbean"),
+    ]
+
+    @testset "pinned points: $label" for (Sᴬ, T, p, label) in pinned_points
+        Θ = GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)
+        @test Θ_from_θᴾ(Sᴬ, T)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, T)    rtol=1e-12
+        @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
+        @test Θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
+        @test θᴾ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
+    end
+
+    @testset "random sweep" begin
+        Random.seed!(20260429)
+        for _ in 1:200
+            Sᴬ = 30 + 10 * rand()
+            θᴾ = -2 + 32 * rand()
+            T  = -2 + 32 * rand()
+            p  = 6000 * rand()
+            Θ  = GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)
+
+            @test Θ_from_θᴾ(Sᴬ, θᴾ)   ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)   rtol=1e-12
+            @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
+            @test Θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
+            @test θᴾ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
+        end
+    end
+end
+
+@testset "TEOS-10 salinity conversion vs GibbsSeaWater" begin
+    pinned_points = [
+      # (Sᴾ,      p,      λ,     φ,    label)
+        (35.0,        0.0, -30.0,  45.0, "mid Atlantic surface"),
+        (34.5,      100.0, 200.0,  -5.0, "equatorial Pacific"),
+        (34.9,     2000.0, -20.0,  55.0, "NE Atlantic deep"),
+        (33.0,     1500.0, -20.0, -60.0, "Southern Ocean"),
+        ( 8.0,        0.0,  20.0,  60.0, "Baltic Sea"),
+        (35.0,        0.0, -78.0,   8.0, "Caribbean / Panama region"),
+        (34.8,      100.0, -82.0,  10.0, "north of Panama isthmus"),
+        (34.73523, 1500.0, 288.5,   6.5, "eastern edge of the Panama barrier"),
+        (34.7,     6131.0, 149.0,  43.0, "deepest atlas level"),
+        (34.7,       -0.5, 149.0,  43.0, "negative sea pressure"),
+    ]
+
+    @testset "pinned points: $label" for (Sᴾ, p, λ, φ, label) in pinned_points
+        @test Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ) ≈ GibbsSeaWater.gsw_sa_from_sp(Sᴾ, p, λ, φ) rtol=1e-12
+    end
+
+    @testset "random sweep" begin
+        Random.seed!(20260429)
+        for _ in 1:200
+            Sᴾ = 30 + 10 * rand()
+            p  = 7000 * rand()
+            λ  = 360 * rand()
+            φ  = -85 + 175 * rand()
+            @test Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ) ≈ GibbsSeaWater.gsw_sa_from_sp(Sᴾ, p, λ, φ) rtol=1e-12
+        end
+    end
 end
 
 @testset "with_float_type" begin
