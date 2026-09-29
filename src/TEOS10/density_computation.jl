@@ -1,13 +1,3 @@
-module TEOS10
-
-export 
-    TEOS10SeawaterPolynomial,
-    TEOS10EquationOfState
-
-using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
-
-import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity, with_float_type
-
 #####
 ##### The TEOS-10 polynomial approximation implemented in this file has been translated
 ##### into Julia from https://github.com/fabien-roquet/polyTEOS/blob/master/polyTEOS10.py
@@ -342,5 +332,3 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
       ((FT(β₃₂₀) * s + FT(β₂₂₀)) * s + FT(β₁₂₀)) * s + FT(β₀₂₀)) * τ +
      (((FT(β₄₁₀) * s + FT(β₃₁₀)) * s + FT(β₂₁₀)) * s + FT(β₁₁₀)) * s + FT(β₀₁₀)) * τ +
     ((((FT(β₅₀₀) * s + FT(β₄₀₀)) * s + FT(β₃₀₀)) * s + FT(β₂₀₀)) * s + FT(β₁₀₀)) * s + FT(β₀₀₀)
-
-end # module
