@@ -112,25 +112,25 @@ end
 
     @testset "pinned points: $label" for (Sᴬ, T, p, label) in pinned_points
         Θ = GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)
-        @test Θ_from_θᴾ(Sᴬ, T)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, T)    rtol=1e-12
-        @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
-        @test Θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
-        @test θᴾ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
+        @test Θ_from_θ(Sᴬ, T)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, T)    rtol=1e-12
+        @test θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
+        @test Θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
+        @test θ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
     end
 
     @testset "random sweep" begin
         Random.seed!(20260429)
         for _ in 1:200
             Sᴬ = 30 + 10 * rand()
-            θᴾ = -2 + 32 * rand()
+            θ  = -2 + 32 * rand()
             T  = -2 + 32 * rand()
             p  = 6000 * rand()
-            Θ  = GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)
+            Θ  = GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θ)
 
-            @test Θ_from_θᴾ(Sᴬ, θᴾ)   ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)   rtol=1e-12
-            @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
-            @test Θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
-            @test θᴾ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
+            @test Θ_from_θ(Sᴬ, θ)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θ)    rtol=1e-12
+            @test θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
+            @test Θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
+            @test θ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
         end
     end
 end
