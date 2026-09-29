@@ -6,7 +6,10 @@ export
     Θ_from_θ,
     Θ_from_T,
     θ_from_T,
-    θ_from_Θ
+    θ_from_Θ,
+    Θ_freezing,
+    Θ_freezing_salinity_derivative,
+    Θ_freezing_pressure_derivative
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
@@ -14,5 +17,6 @@ import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity, 
 
 include("density_computation.jl")
 include("temperature_conversions.jl")
+include("freezing_temperature.jl")
 
 end # module
