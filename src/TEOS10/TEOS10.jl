@@ -3,10 +3,10 @@ module TEOS10
 export
     TEOS10SeawaterPolynomial,
     TEOS10EquationOfState,
-    Θ_from_θᴾ,
+    Θ_from_θ,
     Θ_from_T,
-    θᴾ_from_T,
-    θᴾ_from_Θ
+    θ_from_T,
+    θ_from_Θ
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
