@@ -8,17 +8,21 @@
 #####   φ  : latitude                    [°N]
 #####
 
-const gsw_error_limit         = 1.0e10
-const gsw_neighbour_threshold = 100.0   # cut-off between valid SAAR ratios (O(0.01)) and the ±9e90 land flags
-const panama_inset            = 0.001   # keeps samples strictly inside the Panama barrier domain
+const gsw_error_limit        = 1.0e10  # GSW_ERROR_LIMIT: atlas entries at or above it are land flags (9e90)
+const gsw_neighbor_threshold = 100.0   # cut-off between valid SAAR ratios (O(0.01)) and the land flags
+const panama_inset           = 0.001   # keeps samples strictly inside the Panama barrier domain
+
+const baltic_river_absolute_salinity = 0.087  # [g/kg] absolute salinity of Baltic river water (Sᴾ = 0)
 
 # Index of the interval of the sorted `xs` that brackets `x`, clamped to the first and last intervals (`gsw_util_indx`)
 @inline interval_index(xs, x) = clamp(count(≤(x), xs), 1, length(xs) - 1)
 
 @inline function linear_interpolate(xs, ys, x)
     k = interval_index(xs, x)
-    r = (x - xs[k]) / (xs[k+1] - xs[k])
-    return ys[k] + r * (ys[k+1] - ys[k])
+    # `interval_index` clamps k to [1, length(xs) - 1]
+    @inbounds r = (x - xs[k]) / (xs[k+1] - xs[k])
+    @inbounds y = ys[k] + r * (ys[k+1] - ys[k])
+    return y
 end
 
 #####
@@ -83,39 +87,37 @@ const panama_latitudes  = ( 19.55,  13.97,   9.60,   8.10,   9.33,   3.40)
 const longitude_corner_offsets = (0, 1, 1, 0)
 const latitude_corner_offsets  = (0, 0, 1, 1)
 
-# Replace the flagged corners of `d` by the mean of the valid ones (`gsw_add_mean`)
-@inline function mean_of_valid_neighbours(d::NTuple{4, FT}) where FT
+# Replace the corners where `is_replaced(k)` by the mean of the corners where `is_valid(k)`
+@inline function fill_flagged_corners(corners::NTuple{4, FT}, is_valid, is_replaced) where FT
     N = 0
     S = zero(FT)
-    for k in 1:4
-        N += ifelse(abs(d[k]) <= gsw_neighbour_threshold, 1, 0)
-        S += ifelse(abs(d[k]) <= gsw_neighbour_threshold, d[k], zero(FT))
+    for k in eachindex(corners)
+        N += ifelse(is_valid(k), 1, 0)
+        S += ifelse(is_valid(k), corners[k], zero(FT))
     end
-    m = ifelse(N == 0, zero(FT), S / N)
-    return ntuple(k -> ifelse(abs(d[k]) >= gsw_neighbour_threshold, m, d[k]), Val(4))
+    r̄ = ifelse(N == 0, zero(FT), S / N)
+    return ntuple(k -> ifelse(is_replaced(k), r̄, corners[k]), Val(4))
 end
 
-# Replace the corners of `d` that are flagged or lie across the Panama isthmus from `(λ, φ)` by the mean of the rest
+# Replace the flagged corners by the mean of the valid ones (`gsw_add_mean`)
+@inline mean_of_valid_neighbors(corners) =
+    fill_flagged_corners(corners, k -> abs(corners[k]) <= gsw_neighbor_threshold,
+                                  k -> abs(corners[k]) >= gsw_neighbor_threshold)
+
+# Replace the corners that are flagged or lie across the Panama isthmus from `(λ, φ)` by the mean of the rest
 # (`gsw_add_barrier`). `(λr, φr)` is the south-west corner of the atlas cell and `(Δλ, Δφ)` its extent.
-@inline function apply_panama_barrier(d::NTuple{4, FT}, λ, φ, λr, φr, Δλ, Δφ) where FT
+@inline function apply_panama_barrier(corners, λ, φ, λr, φr, Δλ, Δφ)
     λP = panama_longitudes
     φP = panama_latitudes
 
     sample_side = linear_interpolate(λP, φP, λ) ≤ φ
     φᵂ = linear_interpolate(λP, φP, λr)
     φᴱ = linear_interpolate(λP, φP, λr + Δλ)
-    side = (φᵂ ≤ φr, φᴱ ≤ φr, φᴱ ≤ φr + Δφ, φᵂ ≤ φr + Δφ)
+    corner_side = (φᵂ ≤ φr, φᴱ ≤ φr, φᴱ ≤ φr + Δφ, φᵂ ≤ φr + Δφ)
 
-    N = 0
-    S = zero(FT)
-    for k in 1:4
-        valid = abs(d[k]) <= gsw_neighbour_threshold && sample_side == side[k]
-        N += ifelse(valid, 1, 0)
-        S += ifelse(valid, d[k], zero(FT))
-    end
-    m = ifelse(N == 0, zero(FT), S / N)
-
-    return ntuple(k -> ifelse(abs(d[k]) >= gsw_error_limit || sample_side != side[k], m, d[k]), Val(4))
+    return fill_flagged_corners(corners,
+                                k -> abs(corners[k]) <= gsw_neighbor_threshold && corner_side[k] == sample_side,
+                                k -> abs(corners[k]) >= gsw_error_limit        || corner_side[k] != sample_side)
 end
 
 #####
@@ -137,6 +139,7 @@ Return the absolute salinity [g/kg] inside the Baltic Sea polygon, or `NaN` outs
   Baltic seawater. Ocean Science 6, 949–981.
 """
 function baltic_absolute_salinity(Sᴾ, λ, φ)
+    Sᴿ = baltic_river_absolute_salinity
     λᵂ = baltic_west_longitudes
     φᵂ = baltic_west_latitudes
     λᴱ = baltic_east_longitudes
@@ -148,7 +151,7 @@ function baltic_absolute_salinity(Sᴾ, λ, φ)
     λᴸ = linear_interpolate(φᵂ, λᵂ, φ)
     λᴿ = linear_interpolate(φᴱ, λᴱ, φ)
 
-    return ifelse(λᴸ ≤ λ ≤ λᴿ, ((Sₒ - 0.087) / 35) * Sᴾ + 0.087, NaN)
+    return ifelse(λᴸ ≤ λ ≤ λᴿ, ((Sₒ - Sᴿ) / 35) * Sᴾ + Sᴿ, NaN)
 end
 
 #####
@@ -167,7 +170,7 @@ from any ocean column. Mirrors `gsw_saar`.
   algorithm for estimating absolute salinity. Ocean Science 8, 1123–1134.
 """
 function saar(atlas::SAARAtlas, p, λ, φ)
-    (isnan(p) || isnan(λ) || isnan(φ) || φ < -86 || φ > 90) && return NaN
+    (isnan(p) || isnan(λ) || isnan(φ) || φ < atlas.φ[1] || φ > atlas.φ[end]) && return NaN
 
     λP = panama_longitudes
     φP = panama_latitudes
@@ -177,13 +180,8 @@ function saar(atlas::SAARAtlas, p, λ, φ)
     i = min(floor(Int, (Nλ - 1) * (λ - atlas.λ[1]) / (atlas.λ[end] - atlas.λ[1])) + 1, Nλ - 1)
     j = min(floor(Int, (Nφ - 1) * (φ - atlas.φ[1]) / (atlas.φ[end] - atlas.φ[1])) + 1, Nφ - 1)
 
-    Nᵐᵃˣ = -1.0
-    for c in 1:4
-        n = atlas.ndepth[j + δj[c], i + δi[c]]
-        if 0 < n < 1e90
-            Nᵐᵃˣ = max(Nᵐᵃˣ, n)
-        end
-    end
+    corner_depths = ntuple(c -> atlas.ndepth[j + δj[c], i + δi[c]], Val(4))
+    Nᵐᵃˣ = maximum(n -> ifelse(0 < n < gsw_error_limit, n, -1.0), corner_depths)
 
     Nᵐᵃˣ == -1 && return 0.0
 
@@ -218,7 +216,7 @@ end
     corners = if inside_panama
         apply_panama_barrier(corners, λ, φ, λr, φr, Δλ, Δφ)
     elseif abs(sum(corners)) >= gsw_error_limit
-        mean_of_valid_neighbours(corners)
+        mean_of_valid_neighbors(corners)
     else
         corners
     end
