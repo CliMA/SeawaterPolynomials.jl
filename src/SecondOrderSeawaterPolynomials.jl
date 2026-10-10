@@ -78,10 +78,13 @@ end
                                    - eos.seawater_polynomial.R₁₀₁ * Sᴬ * Z
                                    + eos.seawater_polynomial.R₁₁₀ * Sᴬ * Θ )
 
-@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₁₀
-                                                    + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
-                                                    -     eos.seawater_polynomial.R₀₁₁ * Z
-                                                    +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
+# Note the leading minus sign: `thermal_sensitivity` is defined as `-∂ρ/∂Θ` (see the
+# `SeawaterPolynomials.thermal_sensitivity` docstring and the TEOS10 implementation), so that
+# `thermal_expansion = thermal_sensitivity / ρᵣ` is positive for warm water.
+@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = - (      eos.seawater_polynomial.R₀₁₀
+                                                      + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
+                                                      -     eos.seawater_polynomial.R₀₁₁ * Z
+                                                      +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
 
 @inline haline_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
                                                    + 2 * eos.seawater_polynomial.R₂₀₀ * Sᴬ
