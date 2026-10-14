@@ -135,6 +135,37 @@ end
     end
 end
 
+@testset "TEOS-10 salinity conversion vs GibbsSeaWater" begin
+    pinned_points = [
+      # (Sᴾ,      p,      λ,     φ,    label)
+        (35.0,        0.0, -30.0,  45.0, "mid Atlantic surface"),
+        (34.5,      100.0, 200.0,  -5.0, "equatorial Pacific"),
+        (34.9,     2000.0, -20.0,  55.0, "NE Atlantic deep"),
+        (33.0,     1500.0, -20.0, -60.0, "Southern Ocean"),
+        ( 8.0,        0.0,  20.0,  60.0, "Baltic Sea"),
+        (35.0,        0.0, -78.0,   8.0, "Caribbean / Panama region"),
+        (34.8,      100.0, -82.0,  10.0, "north of Panama isthmus"),
+        (34.73523, 1500.0, 288.5,   6.5, "eastern edge of the Panama barrier"),
+        (34.7,     6131.0, 149.0,  43.0, "deepest atlas level"),
+        (34.7,       -0.5, 149.0,  43.0, "negative sea pressure"),
+    ]
+
+    @testset "pinned points: $label" for (Sᴾ, p, λ, φ, label) in pinned_points
+        @test Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ) ≈ GibbsSeaWater.gsw_sa_from_sp(Sᴾ, p, λ, φ) rtol=1e-12
+    end
+
+    @testset "random sweep" begin
+        Random.seed!(20260429)
+        for _ in 1:200
+            Sᴾ = 30 + 10 * rand()
+            p  = 7000 * rand()
+            λ  = 360 * rand()
+            φ  = -85 + 175 * rand()
+            @test Sᴬ_from_Sᴾ(Sᴾ, p, λ, φ) ≈ GibbsSeaWater.gsw_sa_from_sp(Sᴾ, p, λ, φ) rtol=1e-12
+        end
+    end
+end
+
 @testset "with_float_type" begin
     for (FT, FT2) in zip((Float32, Float64), (Float64, Float32))
         eos = TEOS10EquationOfState(FT)
