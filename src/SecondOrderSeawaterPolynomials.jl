@@ -90,7 +90,6 @@ thermal_expansion = thermal_sensitivity / \rho
                                                     -     eos.seawater_polynomial.R₀₁₁ * Z
                                                     +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
 
-
 @inline haline_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
                                                    + 2 * eos.seawater_polynomial.R₂₀₀ * Sᴬ
                                                    -     eos.seawater_polynomial.R₁₀₁ * Z
