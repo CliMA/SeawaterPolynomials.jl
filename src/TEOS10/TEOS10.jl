@@ -7,9 +7,9 @@ export
     Θ_from_T,
     θ_from_T,
     θ_from_Θ,
-    Θᶠ,
-    ∂Θᶠ∂Sᴬ,
-    ∂Θᶠ∂p
+    Tᶠ,
+    ∂Tᶠ∂Sᴬ,
+    ∂Tᶠ∂p
 
 using SeawaterPolynomials: AbstractSeawaterPolynomial, BoussinesqEquationOfState
 
