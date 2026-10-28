@@ -78,7 +78,11 @@ end
                                    - eos.seawater_polynomial.R₁₀₁ * Sᴬ * Z
                                    + eos.seawater_polynomial.R₁₁₀ * Sᴬ * Θ )
 
-@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₀₁₀
+# Note: following the convention used throughout SeawaterPolynomials, the thermal
+# sensitivity is defined as -∂ρ′/∂Θ (positive for typical seawater), so that
+# thermal_expansion = thermal_sensitivity / reference_density. The haline sensitivity
+# is +∂ρ′/∂Sᴬ, so that haline_contraction = haline_sensitivity / reference_density.
+@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = -(      eos.seawater_polynomial.R₀₁₀
                                                     + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
                                                     -     eos.seawater_polynomial.R₀₁₁ * Z
                                                     +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )

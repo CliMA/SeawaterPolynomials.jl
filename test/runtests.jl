@@ -47,13 +47,26 @@ end
             @test instantiate_roquet_polynomial(FT, coefficient_set)
             @test instantiate_roquet_equation_of_state(FT, coefficient_set)
 
-            eos = RoquetEquationOfState(FT)
+            eos = RoquetEquationOfState(FT, coefficient_set)
 
             @test SeawaterPolynomials.ρ′(0, 0, 0, eos) == 0
             @test SeawaterPolynomials.haline_sensitivity(0, 0, 0, eos) ==
                     eos.seawater_polynomial.R₁₀₀
             @test SeawaterPolynomials.thermal_sensitivity(0, 0, 0, eos) ==
-                    eos.seawater_polynomial.R₀₁₀
+                    - eos.seawater_polynomial.R₀₁₀
+
+            # Sensitivities are consistent with derivatives of ρ′:
+            # thermal_sensitivity = -∂ρ′/∂Θ and haline_sensitivity = +∂ρ′/∂Sᴬ
+            Θ, Sᴬ, Z, δ = 10.0, 35.0, -1000.0, 1e-3
+            ρ′(Θ, Sᴬ) = SeawaterPolynomials.ρ′(Θ, Sᴬ, Z, RoquetEquationOfState(Float64, coefficient_set))
+            ∂ρ′∂Θ = (ρ′(Θ + δ, Sᴬ) - ρ′(Θ - δ, Sᴬ)) / 2δ
+            ∂ρ′∂S = (ρ′(Θ, Sᴬ + δ) - ρ′(Θ, Sᴬ - δ)) / 2δ
+            @test SeawaterPolynomials.thermal_sensitivity(FT(Θ), FT(Sᴬ), FT(Z), eos) ≈ - ∂ρ′∂Θ rtol=1e-4
+            @test SeawaterPolynomials.haline_sensitivity(FT(Θ), FT(Sᴬ), FT(Z), eos) ≈ ∂ρ′∂S rtol=1e-4
+
+            # Warm water expands and salty water contracts
+            @test SeawaterPolynomials.thermal_expansion(Θ, Sᴬ, Z, eos) > 0
+            @test SeawaterPolynomials.haline_contraction(Θ, Sᴬ, Z, eos) > 0
         end
     end
 
