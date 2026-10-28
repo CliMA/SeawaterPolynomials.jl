@@ -148,6 +148,64 @@ end
     end
 end
 
+@testset "TEOS-10 freezing temperature" begin
+    function gsw_freezing_derivatives(Sᴬ, p, saturation_fraction)
+        salinity_derivative, pressure_derivative = Ref{Float64}(), Ref{Float64}()
+        GibbsSeaWater.gsw_ct_freezing_first_derivatives_poly(Sᴬ, p, saturation_fraction, salinity_derivative, pressure_derivative)
+        return salinity_derivative[], pressure_derivative[] * 1e4 # K/Pa → K/dbar
+    end
+
+    function central_difference(f, x, h)
+        return (f(x + h) - f(x - h)) / 2h
+    end
+
+    pinned_points = [
+      # (Sᴬ,   p,      label)
+        (35.0,    0.0, "standard ocean surface"),
+        (34.5,  500.0, "ice shelf base"),
+        (34.7, 2000.0, "deep grounding line"),
+        ( 8.0,    0.0, "Baltic Sea"),
+        ( 0.0,    0.0, "fresh water"),
+    ]
+
+    @testset "pinned points: $label" for (Sᴬ, p, label) in pinned_points
+        for saturation_fraction in (0, 0.5, 1)
+            @test Tᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
+        end
+        @test Tᶠʳ(Sᴬ, p) == Tᶠʳ(Sᴬ, p, 1)
+    end
+
+    @testset "random sweep" begin
+        Random.seed!(20260929)
+        for _ in 1:200
+            Sᴬ = 1 + 41 * rand()
+            p  = 3000 * rand()
+            saturation_fraction = rand()
+
+            @test Tᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
+
+            # GSW-C's salinity derivative has the wrong sign on one dissolved-air term, so it is only used air-free
+            expected_salinity_derivative, expected_pressure_derivative = gsw_freezing_derivatives(Sᴬ, p, 0.0)
+            @test ∂Tᶠʳ∂Sᴬ(Sᴬ, p, 0) ≈ expected_salinity_derivative rtol=1e-12
+            @test ∂Tᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-12
+
+            expected_salinity_derivative = central_difference(S -> Tᶠʳ(S, p, saturation_fraction), Sᴬ, 1e-3)
+            expected_pressure_derivative = central_difference(p′ -> Tᶠʳ(Sᴬ, p′, saturation_fraction), p, 1e-1)
+            @test ∂Tᶠʳ∂Sᴬ(Sᴬ, p, saturation_fraction) ≈ expected_salinity_derivative rtol=1e-8
+            @test ∂Tᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-8
+        end
+    end
+
+    @testset "Float32" begin
+        T = Tᶠʳ(34.5f0, 500f0)
+        @test T isa Float32
+        @test T ≈ GibbsSeaWater.gsw_ct_freezing_poly(34.5, 500.0, 1.0) rtol=1e-6
+        @test ∂Tᶠʳ∂Sᴬ(34.5f0, 500f0) isa Float32
+        @test ∂Tᶠʳ∂p(34.5f0, 500f0) isa Float32
+        @test Tᶠʳ(35, 0) isa Float64
+    end
+end
+
 @testset "with_float_type" begin
     for (FT, FT2) in zip((Float32, Float64), (Float64, Float32))
         eos = TEOS10EquationOfState(FT)
