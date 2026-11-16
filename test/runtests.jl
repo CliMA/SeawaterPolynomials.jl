@@ -170,9 +170,9 @@ end
 
     @testset "pinned points: $label" for (Sᴬ, p, label) in pinned_points
         for saturation_fraction in (0, 0.5, 1)
-            @test Tᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
+            @test Θᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
         end
-        @test Tᶠʳ(Sᴬ, p) == Tᶠʳ(Sᴬ, p, 1)
+        @test Θᶠʳ(Sᴬ, p) == Θᶠʳ(Sᴬ, p, 1)
     end
 
     @testset "random sweep" begin
@@ -182,27 +182,27 @@ end
             p  = 3000 * rand()
             saturation_fraction = rand()
 
-            @test Tᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
+            @test Θᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
 
             # GSW-C's salinity derivative has the wrong sign on one dissolved-air term, so it is only used air-free
             expected_salinity_derivative, expected_pressure_derivative = gsw_freezing_derivatives(Sᴬ, p, 0.0)
-            @test ∂Tᶠʳ∂Sᴬ(Sᴬ, p, 0) ≈ expected_salinity_derivative rtol=1e-12
-            @test ∂Tᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-12
+            @test ∂Θᶠʳ∂Sᴬ(Sᴬ, p, 0) ≈ expected_salinity_derivative rtol=1e-12
+            @test ∂Θᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-12
 
-            expected_salinity_derivative = central_difference(S -> Tᶠʳ(S, p, saturation_fraction), Sᴬ, 1e-3)
-            expected_pressure_derivative = central_difference(p′ -> Tᶠʳ(Sᴬ, p′, saturation_fraction), p, 1e-1)
-            @test ∂Tᶠʳ∂Sᴬ(Sᴬ, p, saturation_fraction) ≈ expected_salinity_derivative rtol=1e-8
-            @test ∂Tᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-8
+            expected_salinity_derivative = central_difference(S -> Θᶠʳ(S, p, saturation_fraction), Sᴬ, 1e-3)
+            expected_pressure_derivative = central_difference(p′ -> Θᶠʳ(Sᴬ, p′, saturation_fraction), p, 1e-1)
+            @test ∂Θᶠʳ∂Sᴬ(Sᴬ, p, saturation_fraction) ≈ expected_salinity_derivative rtol=1e-8
+            @test ∂Θᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-8
         end
     end
 
     @testset "Float32" begin
-        T = Tᶠʳ(34.5f0, 500f0)
-        @test T isa Float32
-        @test T ≈ GibbsSeaWater.gsw_ct_freezing_poly(34.5, 500.0, 1.0) rtol=1e-6
-        @test ∂Tᶠʳ∂Sᴬ(34.5f0, 500f0) isa Float32
-        @test ∂Tᶠʳ∂p(34.5f0, 500f0) isa Float32
-        @test Tᶠʳ(35, 0) isa Float64
+        Θ = Θᶠʳ(34.5f0, 500f0)
+        @test Θ isa Float32
+        @test Θ ≈ GibbsSeaWater.gsw_ct_freezing_poly(34.5, 500.0, 1.0) rtol=1e-6
+        @test ∂Θᶠʳ∂Sᴬ(34.5f0, 500f0) isa Float32
+        @test ∂Θᶠʳ∂p(34.5f0, 500f0) isa Float32
+        @test Θᶠʳ(35, 0) isa Float64
     end
 end
 
