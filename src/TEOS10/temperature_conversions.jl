@@ -1,12 +1,12 @@
 #####
-##### TEOS-10 temperature conversions (Θ ↔ θ ↔ T), translated from `gsw_oceanographic_toolbox.c` of
+##### TEOS-10 temperature conversions (θ ↔ θᴾ ↔ T), translated from `gsw_oceanographic_toolbox.c` of
 ##### https://github.com/TEOS-10/GSW-C.
 #####
 ##### Notation (TEOS-10 manual, §A.1):
 #####   Sᴬ : absolute salinity                      [g/kg]
 #####   T  : in-situ temperature, ITS-90            [°C]
-#####   θ  : potential temperature, p_ref = 0 dbar  [°C]
-#####   Θ  : conservative temperature               [°C]
+#####   θᴾ : potential temperature, p_ref = 0 dbar  [°C]
+#####   θ  : conservative temperature               [°C]
 #####   p  : sea pressure (gauge)                   [dbar]
 #####
 ##### The Gibbs-function polynomials are written in the non-dimensional TEOS-10 variables
@@ -26,7 +26,7 @@ const rT  = 0.025           #          [1/°C]   y  = rT T
 const rT² = 0.000625        #          [1/°C²]  ∂²/∂T² = rT² ∂²/∂y²
 const rp  = 1e-4            #          [1/dbar] z  = rp p
 
-# cᵖ ≈ cᵖ⁰ / (1 - heat_capacity_salinity_coefficient (1 - Sᴬ / Sₒ)), used for the first ∂θ/∂η estimate
+# cᵖ ≈ cᵖ⁰ / (1 - heat_capacity_salinity_coefficient (1 - Sᴬ / Sₒ)), used for the first ∂θᴾ/∂η estimate
 const heat_capacity_salinity_coefficient = 0.05
 
 #####
@@ -145,10 +145,10 @@ const η₄₄₀ =  12.4848504784754
     return -(ηᵂ + ηˢ) * FT(rT)
 end
 
-@inline function zero_pressure_entropy_part(Sᴬ::FT, θ::FT) where FT
+@inline function zero_pressure_entropy_part(Sᴬ::FT, θᴾ::FT) where FT
     x² = FT(rS) * Sᴬ
     x  = sqrt(x²)
-    y  = θ * FT(rT)
+    y  = θᴾ * FT(rT)
 
     ηᵂ = y*(FT(η₀₁₀) + y*(FT(η₀₂₀) + y*(FT(η₀₃₀) + y*(FT(η₀₄₀) + y*(FT(η₀₅₀) + y*FT(η₀₆₀))))))
 
@@ -164,7 +164,7 @@ end
 
 #####
 ##### Gibbs-function curvature at the sea surface (gsw_gibbs_pt0_pt0):
-#####   ∂²g/∂T²(Sᴬ, θ, 0) = rT² Σ gᵀᵀᵢⱼ xⁱ yʲ
+#####   ∂²g/∂T²(Sᴬ, θᴾ, 0) = rT² Σ gᵀᵀᵢⱼ xⁱ yʲ
 #####
 
 const gᵀᵀ₀₀ = -24715.571866078
@@ -186,10 +186,10 @@ const gᵀᵀ₄₁ =  296.20061691375236
 const gᵀᵀ₄₂ = -205.67709290374563
 const gᵀᵀ₄₃ =  49.9394019139016
 
-@inline function zero_pressure_gibbs_curvature(Sᴬ::FT, θ::FT) where FT
+@inline function zero_pressure_gibbs_curvature(Sᴬ::FT, θᴾ::FT) where FT
     x² = FT(rS) * Sᴬ
     x  = sqrt(x²)
-    y  = θ * FT(rT)
+    y  = θᴾ * FT(rT)
 
     gᵀᵀᵂ = FT(gᵀᵀ₀₀) + y*(FT(gᵀᵀ₀₁) + y*(FT(gᵀᵀ₀₂) + y*(FT(gᵀᵀ₀₃) + y*(FT(gᵀᵀ₀₄) + y*FT(gᵀᵀ₀₅)))))
 
@@ -202,7 +202,7 @@ end
 
 #####
 ##### Potential enthalpy (gsw_ct_from_pt):
-#####   h⁰(Sᴬ, θ) = Σ hᵢⱼ xⁱ yʲ
+#####   h⁰(Sᴬ, θᴾ) = Σ hᵢⱼ xⁱ yʲ
 #####
 
 const h₀₀ =  61.01362420681071
@@ -236,32 +236,32 @@ const h₆₀ =  123.59576582457964
 const h₇₀ = -48.5891069025409
 
 """
-    Θ_from_θ(Sᴬ, θ)
+    θ_from_θᴾ(Sᴬ, θᴾ)
 
-Return the TEOS-10 conservative temperature ``Θ`` from absolute salinity ``Sᴬ`` and potential temperature
-``θ`` referenced to ``p = 0`` dbar, computed as ``Θ = h⁰(Sᴬ, θ) / cᵖ⁰`` where ``h⁰`` is the potential-enthalpy
+Return the TEOS-10 conservative temperature ``θ`` from absolute salinity ``Sᴬ`` and potential temperature
+``θᴾ`` referenced to ``p = 0`` dbar, computed as ``θ = h⁰(Sᴬ, θᴾ) / cᵖ⁰`` where ``h⁰`` is the potential-enthalpy
 polynomial and ``cᵖ⁰ = 3991.867957...`` J/kg/K is the TEOS-10 reference heat capacity.
 Direct translation of `gsw_ct_from_pt` of https://github.com/TEOS-10/GSW-C.
 
 # Inputs
 - `Sᴬ`: absolute salinity                              [g/kg]
-- `θ` : potential temperature, ITS-90, p_ref = 0 dbar  [°C]
+- `θᴾ` : potential temperature, ITS-90, p_ref = 0 dbar  [°C]
 
 # Output
-- `Θ` : conservative temperature                       [°C]
+- `θ` : conservative temperature                       [°C]
 
 # References
 - IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater – 2010: Calculation and
   use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
   UNESCO. http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
 """
-@inline function Θ_from_θ(Sᴬ, θ)
-    Sᴬ, θ = map(float, promote(Sᴬ, θ))
+@inline function θ_from_θᴾ(Sᴬ, θᴾ)
+    Sᴬ, θᴾ = map(float, promote(Sᴬ, θᴾ))
     FT = typeof(Sᴬ)
     cᵖ⁰ = teos10_reference_heat_capacity
     x² = FT(rS) * Sᴬ
     x  = sqrt(x²)
-    y  = θ * FT(rT)
+    y  = θᴾ * FT(rT)
 
     hᵂ = FT(h₀₀) + y*(FT(h₀₁) + y*(FT(h₀₂) + y*(FT(h₀₃) + y*(FT(h₀₄) + y*(FT(h₀₅) + y*(FT(h₀₆) + y*FT(h₀₇)))))))
 
@@ -277,22 +277,22 @@ end
 
 #####
 ##### Potential temperature from in-situ temperature (gsw_pt0_from_t), with a first guess
-#####   θ ≈ T + Σ θᵢⱼₖ s₁ⁱ Tʲ pᵏ,  s₁ = Sᴬ / uₚₛ
+#####   θᴾ ≈ T + Σ θᴾᵢⱼₖ s₁ⁱ Tʲ pᵏ,  s₁ = Sᴬ / uₚₛ
 #####
 
-const θ₀₀₁ =  8.65483913395442e-6
-const θ₁₀₁ = -1.41636299744881e-6
-const θ₀₀₂ = -7.38286467135737e-9
-const θ₀₁₁ = -8.38241357039698e-6
-const θ₁₁₁ =  2.83933368585534e-8
-const θ₀₂₁ =  1.77803965218656e-8
-const θ₀₁₂ =  1.71155619208233e-10
+const θᴾ₀₀₁ =  8.65483913395442e-6
+const θᴾ₁₀₁ = -1.41636299744881e-6
+const θᴾ₀₀₂ = -7.38286467135737e-9
+const θᴾ₀₁₁ = -8.38241357039698e-6
+const θᴾ₁₁₁ =  2.83933368585534e-8
+const θᴾ₀₂₁ =  1.77803965218656e-8
+const θᴾ₀₁₂ =  1.71155619208233e-10
 
 """
-    θ_from_T(Sᴬ, T, p)
+    θᴾ_from_T(Sᴬ, T, p)
 
-Return the TEOS-10 potential temperature ``θ`` referenced to ``p = 0`` dbar from absolute salinity,
-in-situ temperature and sea pressure. ``θ`` is the root of ``η(Sᴬ, θ, 0) = η(Sᴬ, T, p)``, found with a
+Return the TEOS-10 potential temperature ``θᴾ`` referenced to ``p = 0`` dbar from absolute salinity,
+in-situ temperature and sea pressure. ``θᴾ`` is the root of ``η(Sᴬ, θᴾ, 0) = η(Sᴬ, T, p)``, found with a
 polynomial first guess followed by two modified Newton–Raphson iterations (McDougall and Wotherspoon, 2014).
 Direct translation of `gsw_pt0_from_t` of https://github.com/TEOS-10/GSW-C.
 
@@ -302,7 +302,7 @@ Direct translation of `gsw_pt0_from_t` of https://github.com/TEOS-10/GSW-C.
 - `p` : sea pressure (gauge: absolute pressure − 10.1325 dbar)  [dbar]
 
 # Output
-- `θ` : potential temperature, p_ref = 0 dbar                   [°C]
+- `θᴾ` : potential temperature, p_ref = 0 dbar                   [°C]
 
 # References
 - IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater – 2010.
@@ -310,30 +310,30 @@ Direct translation of `gsw_pt0_from_t` of https://github.com/TEOS-10/GSW-C.
 - McDougall, T. J. and S. J. Wotherspoon, 2014: A simple modification of Newton's method to achieve
   convergence of order 1 + √2. Applied Mathematics Letters, 29, 20–25.
 """
-@inline function θ_from_T(Sᴬ, T, p)
+@inline function θᴾ_from_T(Sᴬ, T, p)
     Sᴬ, T, p = map(float, promote(Sᴬ, T, p))
     FT = typeof(Sᴬ)
     cᵖ⁰ = teos10_reference_heat_capacity
     s₁ = Sᴬ / FT(uₚₛ)
 
-    θ = T + p*(FT(θ₀₀₁) + s₁*FT(θ₁₀₁) + p*FT(θ₀₀₂) +
-            T*(FT(θ₀₁₁) + s₁*FT(θ₁₁₁) + T*FT(θ₀₂₁) + p*FT(θ₀₁₂)))
+    θᴾ = T + p*(FT(θᴾ₀₀₁) + s₁*FT(θᴾ₁₀₁) + p*FT(θᴾ₀₀₂) +
+            T*(FT(θᴾ₀₁₁) + s₁*FT(θᴾ₁₁₁) + T*FT(θᴾ₀₂₁) + p*FT(θᴾ₀₁₂)))
 
-    dθdη = (FT(T₀) + θ) * (1 - FT(heat_capacity_salinity_coefficient) * (1 - Sᴬ / FT(Sₒ))) / FT(cᵖ⁰)
+    dθᴾdη = (FT(T₀) + θᴾ) * (1 - FT(heat_capacity_salinity_coefficient) * (1 - Sᴬ / FT(Sₒ))) / FT(cᵖ⁰)
 
     η = entropy_part(Sᴬ, T, p)
 
-    # Modified Newton–Raphson on η(Sᴬ, θ, 0) = η(Sᴬ, T, p), with ∂θ/∂η re-evaluated at the midpoint of each step
+    # Modified Newton–Raphson on η(Sᴬ, θᴾ, 0) = η(Sᴬ, T, p), with ∂θᴾ/∂η re-evaluated at the midpoint of each step
     for _ in 1:2
-        θⁿ   = θ
-        Δη   = zero_pressure_entropy_part(Sᴬ, θⁿ) - η
-        θ    = θⁿ - Δη * dθdη
-        θᵐ   = (θ + θⁿ) / 2
-        dθdη = - 1 / zero_pressure_gibbs_curvature(Sᴬ, θᵐ)
-        θ    = θⁿ - Δη * dθdη
+        θᴾⁿ   = θᴾ
+        Δη    = zero_pressure_entropy_part(Sᴬ, θᴾⁿ) - η
+        θᴾ    = θᴾⁿ - Δη * dθᴾdη
+        θᴾᵐ   = (θᴾ + θᴾⁿ) / 2
+        dθᴾdη = - 1 / zero_pressure_gibbs_curvature(Sᴬ, θᴾᵐ)
+        θᴾ    = θᴾⁿ - Δη * dθᴾdη
     end
 
-    return θ
+    return θᴾ
 end
 
 #####
@@ -341,10 +341,10 @@ end
 #####
 
 """
-    Θ_from_T(Sᴬ, T, p)
+    θ_from_T(Sᴬ, T, p)
 
-Return the TEOS-10 conservative temperature ``Θ`` from absolute salinity, in-situ temperature and sea
-pressure, computed as `Θ_from_θ(Sᴬ, θ_from_T(Sᴬ, T, p))`. Direct translation of `gsw_ct_from_t` of
+Return the TEOS-10 conservative temperature ``θ`` from absolute salinity, in-situ temperature and sea
+pressure, computed as `θ_from_θᴾ(Sᴬ, θᴾ_from_T(Sᴬ, T, p))`. Direct translation of `gsw_ct_from_t` of
 https://github.com/TEOS-10/GSW-C.
 
 # Inputs
@@ -353,17 +353,17 @@ https://github.com/TEOS-10/GSW-C.
 - `p` : sea pressure                 [dbar]
 
 # Output
-- `Θ` : conservative temperature     [°C]
+- `θ` : conservative temperature     [°C]
 
 # References
 - IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater – 2010.
   http://www.teos-10.org/pubs/TEOS-10_Manual.pdf
 """
-@inline Θ_from_T(Sᴬ, T, p) = Θ_from_θ(Sᴬ, θ_from_T(Sᴬ, T, p))
+@inline θ_from_T(Sᴬ, T, p) = θ_from_θᴾ(Sᴬ, θᴾ_from_T(Sᴬ, T, p))
 
 #####
 ##### Potential temperature from conservative temperature (gsw_pt_from_ct), with a rational first guess
-#####   θ ≈ Σ νᵢⱼ s₁ⁱ Θʲ / Σ δᵢⱼ s₁ⁱ Θʲ,  s₁ = Sᴬ / uₚₛ
+#####   θᴾ ≈ Σ νᵢⱼ s₁ⁱ θʲ / Σ δᵢⱼ s₁ⁱ θʲ,  s₁ = Sᴬ / uₚₛ
 #####
 
 const ν₀₀ = -1.446013646344788e-2
@@ -378,19 +378,19 @@ const δ₀₁ =  3.830289486850898e-3
 const δ₀₂ =  1.247811760368034e-6
 
 """
-    θ_from_Θ(Sᴬ, Θ)
+    θᴾ_from_θ(Sᴬ, θ)
 
-Return the TEOS-10 potential temperature ``θ`` referenced to ``p = 0`` dbar from absolute salinity and
-conservative temperature. ``θ`` is the root of ``Θ_from_θ(Sᴬ, θ) = Θ``, found with a rational-polynomial
+Return the TEOS-10 potential temperature ``θᴾ`` referenced to ``p = 0`` dbar from absolute salinity and
+conservative temperature. ``θᴾ`` is the root of ``θ_from_θᴾ(Sᴬ, θᴾ) = θ``, found with a rational-polynomial
 first guess followed by one and a half modified Newton–Raphson iterations (McDougall and Wotherspoon, 2014).
 Direct translation of `gsw_pt_from_ct` of https://github.com/TEOS-10/GSW-C.
 
 # Inputs
 - `Sᴬ`: absolute salinity                          [g/kg]
-- `Θ` : conservative temperature                   [°C]
+- `θ` : conservative temperature                   [°C]
 
 # Output
-- `θ` : potential temperature, p_ref = 0 dbar      [°C]
+- `θᴾ` : potential temperature, p_ref = 0 dbar      [°C]
 
 # References
 - IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater – 2010.
@@ -398,36 +398,36 @@ Direct translation of `gsw_pt_from_ct` of https://github.com/TEOS-10/GSW-C.
 - McDougall, T. J. and S. J. Wotherspoon, 2014: A simple modification of Newton's method to achieve
   convergence of order 1 + √2. Applied Mathematics Letters, 29, 20–25.
 """
-@inline function θ_from_Θ(Sᴬ, Θ)
-    Sᴬ, Θ = map(float, promote(Sᴬ, Θ))
+@inline function θᴾ_from_θ(Sᴬ, θ)
+    Sᴬ, θ = map(float, promote(Sᴬ, θ))
     FT = typeof(Sᴬ)
     cᵖ⁰ = teos10_reference_heat_capacity
     s₁ = Sᴬ / FT(uₚₛ)
 
-    ν₀₂Θ = FT(ν₀₂) * Θ
-    δ₀₂Θ = FT(δ₀₂) * Θ
+    ν₀₂θ = FT(ν₀₂) * θ
+    δ₀₂θ = FT(δ₀₂) * θ
 
-    χ  = FT(ν₀₁) + FT(ν₁₁) * s₁ + ν₀₂Θ
-    ν  = FT(ν₀₀) + s₁ * (FT(ν₁₀) + FT(ν₂₀) * s₁) + Θ * χ
-    δ  = FT(δ₀₀) + FT(δ₁₀) * s₁ + Θ * (FT(δ₀₁) + δ₀₂Θ)
-    θ  = ν / δ
+    χ  = FT(ν₀₁) + FT(ν₁₁) * s₁ + ν₀₂θ
+    ν  = FT(ν₀₀) + s₁ * (FT(ν₁₀) + FT(ν₂₀) * s₁) + θ * χ
+    δ  = FT(δ₀₀) + FT(δ₁₀) * s₁ + θ * (FT(δ₀₁) + δ₀₂θ)
+    θᴾ = ν / δ
 
-    dνdΘ = χ + ν₀₂Θ
-    dδdΘ = FT(δ₀₁) + δ₀₂Θ + δ₀₂Θ
-    dθdΘ = (dνdΘ - dδdΘ * θ) / δ
+    dνdθ = χ + ν₀₂θ
+    dδdθ = FT(δ₀₁) + δ₀₂θ + δ₀₂θ
+    dθᴾdθ = (dνdθ - dδdθ * θᴾ) / δ
 
-    # Modified Newton–Raphson on Θ_from_θ(Sᴬ, θ) = Θ, with ∂θ/∂Θ re-evaluated at the midpoint of the first step
-    ΔΘ = Θ_from_θ(Sᴬ, θ) - Θ
-    θⁿ = θ
-    θ  = θⁿ - ΔΘ * dθdΘ
+    # Modified Newton–Raphson on θ_from_θᴾ(Sᴬ, θᴾ) = θ, with ∂θᴾ/∂θ re-evaluated at the midpoint of the first step
+    Δθ  = θ_from_θᴾ(Sᴬ, θᴾ) - θ
+    θᴾⁿ = θᴾ
+    θᴾ  = θᴾⁿ - Δθ * dθᴾdθ
 
-    θᵐ   = (θ + θⁿ) / 2
-    dθdΘ = - FT(cᵖ⁰) / ((θᵐ + FT(T₀)) * zero_pressure_gibbs_curvature(Sᴬ, θᵐ))
+    θᴾᵐ   = (θᴾ + θᴾⁿ) / 2
+    dθᴾdθ = - FT(cᵖ⁰) / ((θᴾᵐ + FT(T₀)) * zero_pressure_gibbs_curvature(Sᴬ, θᴾᵐ))
 
-    θ  = θⁿ - ΔΘ * dθdΘ
-    ΔΘ = Θ_from_θ(Sᴬ, θ) - Θ
-    θⁿ = θ
-    θ  = θⁿ - ΔΘ * dθdΘ
+    θᴾ  = θᴾⁿ - Δθ * dθᴾdθ
+    Δθ  = θ_from_θᴾ(Sᴬ, θᴾ) - θ
+    θᴾⁿ = θᴾ
+    θᴾ  = θᴾⁿ - Δθ * dθᴾdθ
 
-    return θ
+    return θᴾ
 end

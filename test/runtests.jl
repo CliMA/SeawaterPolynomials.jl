@@ -56,17 +56,17 @@ end
                     - eos.seawater_polynomial.R₀₁₀
 
             # Sensitivities are consistent with derivatives of ρ′:
-            # thermal_sensitivity = -∂ρ′/∂Θ and haline_sensitivity = +∂ρ′/∂Sᴬ
-            Θ, Sᴬ, Z, δ = 10.0, 35.0, -1000.0, 1e-3
-            ρ′(Θ, Sᴬ) = SeawaterPolynomials.ρ′(Θ, Sᴬ, Z, RoquetEquationOfState(Float64, coefficient_set))
-            ∂ρ′∂Θ = (ρ′(Θ + δ, Sᴬ) - ρ′(Θ - δ, Sᴬ)) / 2δ
-            ∂ρ′∂S = (ρ′(Θ, Sᴬ + δ) - ρ′(Θ, Sᴬ - δ)) / 2δ
-            @test SeawaterPolynomials.thermal_sensitivity(FT(Θ), FT(Sᴬ), FT(Z), eos) ≈ - ∂ρ′∂Θ rtol=1e-4
-            @test SeawaterPolynomials.haline_sensitivity(FT(Θ), FT(Sᴬ), FT(Z), eos) ≈ ∂ρ′∂S rtol=1e-4
+            # thermal_sensitivity = -∂ρ′/∂θ and haline_sensitivity = +∂ρ′/∂Sᴬ
+            θ, Sᴬ, Z, δ = 10.0, 35.0, -1000.0, 1e-3
+            ρ′(θ, Sᴬ) = SeawaterPolynomials.ρ′(θ, Sᴬ, Z, RoquetEquationOfState(Float64, coefficient_set))
+            ∂ρ′∂θ = (ρ′(θ + δ, Sᴬ) - ρ′(θ - δ, Sᴬ)) / 2δ
+            ∂ρ′∂S = (ρ′(θ, Sᴬ + δ) - ρ′(θ, Sᴬ - δ)) / 2δ
+            @test SeawaterPolynomials.thermal_sensitivity(FT(θ), FT(Sᴬ), FT(Z), eos) ≈ - ∂ρ′∂θ rtol=1e-4
+            @test SeawaterPolynomials.haline_sensitivity(FT(θ), FT(Sᴬ), FT(Z), eos) ≈ ∂ρ′∂S rtol=1e-4
 
             # Warm water expands and salty water contracts
-            @test SeawaterPolynomials.thermal_expansion(Θ, Sᴬ, Z, eos) > 0
-            @test SeawaterPolynomials.haline_contraction(Θ, Sᴬ, Z, eos) > 0
+            @test SeawaterPolynomials.thermal_expansion(θ, Sᴬ, Z, eos) > 0
+            @test SeawaterPolynomials.haline_contraction(θ, Sᴬ, Z, eos) > 0
         end
     end
 
@@ -79,21 +79,21 @@ end
 
         eos = TEOS10EquationOfState(FT)
         # Test/check values from Roquet et al. (2014).
-        Θ = 10.0    # [C]
+        θ = 10.0    # [C]
         S = 30.0    # [g/kg]
         Z = - 1e3 # [m]
 
-        τ = SeawaterPolynomials.TEOS10.τ(Θ)
+        τ = SeawaterPolynomials.TEOS10.τ(θ)
         s = SeawaterPolynomials.TEOS10.s(S)
         ζ = SeawaterPolynomials.TEOS10.ζ(Z)
 
         @test SeawaterPolynomials.TEOS10.r₀(ζ) ≈ 4.59763035
         @test SeawaterPolynomials.TEOS10.r′(τ, s, ζ) ≈ 1022.85377
 
-        @test SeawaterPolynomials.ρ(Θ, S, Z, eos) ≈ 1027.45140
+        @test SeawaterPolynomials.ρ(θ, S, Z, eos) ≈ 1027.45140
         
-        @test SeawaterPolynomials.TEOS10.thermal_sensitivity(Θ, S, Z, eos) ≈ 0.179646281
-        @test SeawaterPolynomials.TEOS10.haline_sensitivity(Θ, S, Z, eos) ≈ 0.765555368
+        @test SeawaterPolynomials.TEOS10.thermal_sensitivity(θ, S, Z, eos) ≈ 0.179646281
+        @test SeawaterPolynomials.TEOS10.haline_sensitivity(θ, S, Z, eos) ≈ 0.765555368
     end
 
 end
@@ -108,7 +108,7 @@ end
     R₁₀₁ = 8.241e-6
     R₁₁₀ = 2.446e-3
     test_polynomial_string =
-        "ρ' = $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) Θ - $(eval(R₀₂₀)) Θ² - $(eval(R₀₁₁)) Θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ Θ"
+        "ρ' = $(eval(R₁₀₀)) Sᴬ + $(eval(R₀₁₀)) θ - $(eval(R₀₂₀)) θ² - $(eval(R₀₁₁)) θ Z - $(eval(R₂₀₀)) Sᴬ² - $(eval(R₁₀₁)) Sᴬ Z - $(eval(R₁₁₀)) Sᴬ θ"
     @test show_polynomial_string == test_polynomial_string
 end
 
@@ -124,27 +124,85 @@ end
     ]
 
     @testset "pinned points: $label" for (Sᴬ, T, p, label) in pinned_points
-        Θ = GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)
-        @test Θ_from_θ(Sᴬ, T)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, T)    rtol=1e-12
-        @test θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
-        @test Θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
-        @test θ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
+        θ = GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)
+        @test θ_from_θᴾ(Sᴬ, T)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, T)    rtol=1e-12
+        @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
+        @test θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
+        @test θᴾ_from_θ(Sᴬ, θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, θ)    rtol=1e-12
     end
 
     @testset "random sweep" begin
         Random.seed!(20260429)
         for _ in 1:200
             Sᴬ = 30 + 10 * rand()
-            θ  = -2 + 32 * rand()
+            θᴾ = -2 + 32 * rand()
             T  = -2 + 32 * rand()
             p  = 6000 * rand()
-            Θ  = GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θ)
+            θ  = GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)
 
-            @test Θ_from_θ(Sᴬ, θ)    ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θ)    rtol=1e-12
-            @test θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
-            @test Θ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
-            @test θ_from_Θ(Sᴬ, Θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, Θ)    rtol=1e-12
+            @test θ_from_θᴾ(Sᴬ, θᴾ)   ≈ GibbsSeaWater.gsw_ct_from_pt(Sᴬ, θᴾ)   rtol=1e-12
+            @test θᴾ_from_T(Sᴬ, T, p) ≈ GibbsSeaWater.gsw_pt0_from_t(Sᴬ, T, p) rtol=1e-12
+            @test θ_from_T(Sᴬ, T, p)  ≈ GibbsSeaWater.gsw_ct_from_t(Sᴬ, T, p)  rtol=1e-12
+            @test θᴾ_from_θ(Sᴬ, θ)    ≈ GibbsSeaWater.gsw_pt_from_ct(Sᴬ, θ)    rtol=1e-12
         end
+    end
+end
+
+@testset "TEOS-10 freezing temperature" begin
+    function gsw_freezing_derivatives(Sᴬ, p, saturation_fraction)
+        salinity_derivative, pressure_derivative = Ref{Float64}(), Ref{Float64}()
+        GibbsSeaWater.gsw_ct_freezing_first_derivatives_poly(Sᴬ, p, saturation_fraction, salinity_derivative, pressure_derivative)
+        return salinity_derivative[], pressure_derivative[] * 1e4 # K/Pa → K/dbar
+    end
+
+    function central_difference(f, x, h)
+        return (f(x + h) - f(x - h)) / 2h
+    end
+
+    pinned_points = [
+      # (Sᴬ,   p,      label)
+        (35.0,    0.0, "standard ocean surface"),
+        (34.5,  500.0, "ice shelf base"),
+        (34.7, 2000.0, "deep grounding line"),
+        ( 8.0,    0.0, "Baltic Sea"),
+        ( 0.0,    0.0, "fresh water"),
+    ]
+
+    @testset "pinned points: $label" for (Sᴬ, p, label) in pinned_points
+        for saturation_fraction in (0, 0.5, 1)
+            @test θᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
+        end
+        @test θᶠʳ(Sᴬ, p) == θᶠʳ(Sᴬ, p, 1)
+    end
+
+    @testset "random sweep" begin
+        Random.seed!(20260929)
+        for _ in 1:200
+            Sᴬ = 1 + 41 * rand()
+            p  = 3000 * rand()
+            saturation_fraction = rand()
+
+            @test θᶠʳ(Sᴬ, p, saturation_fraction) ≈ GibbsSeaWater.gsw_ct_freezing_poly(Sᴬ, p, saturation_fraction) rtol=1e-12
+
+            # GSW-C's salinity derivative has the wrong sign on one dissolved-air term, so it is only used air-free
+            expected_salinity_derivative, expected_pressure_derivative = gsw_freezing_derivatives(Sᴬ, p, 0.0)
+            @test ∂θᶠʳ∂Sᴬ(Sᴬ, p, 0) ≈ expected_salinity_derivative rtol=1e-12
+            @test ∂θᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-12
+
+            expected_salinity_derivative = central_difference(S -> θᶠʳ(S, p, saturation_fraction), Sᴬ, 1e-3)
+            expected_pressure_derivative = central_difference(p′ -> θᶠʳ(Sᴬ, p′, saturation_fraction), p, 1e-1)
+            @test ∂θᶠʳ∂Sᴬ(Sᴬ, p, saturation_fraction) ≈ expected_salinity_derivative rtol=1e-8
+            @test ∂θᶠʳ∂p(Sᴬ, p) ≈ expected_pressure_derivative rtol=1e-8
+        end
+    end
+
+    @testset "Float32" begin
+        θ = θᶠʳ(34.5f0, 500f0)
+        @test θ isa Float32
+        @test θ ≈ GibbsSeaWater.gsw_ct_freezing_poly(34.5, 500.0, 1.0) rtol=1e-6
+        @test ∂θᶠʳ∂Sᴬ(34.5f0, 500f0) isa Float32
+        @test ∂θᶠʳ∂p(34.5f0, 500f0) isa Float32
+        @test θᶠʳ(35, 0) isa Float64
     end
 end
 
