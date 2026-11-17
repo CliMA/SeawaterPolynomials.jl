@@ -3,14 +3,14 @@ module SeawaterPolynomials
 import Base
 
 """
-    thermal_sensitivity(Θ, Sᴬ, Z, equation_of_state)
+    thermal_sensitivity(θ, Sᴬ, Z, equation_of_state)
 
 Return the "Boussinesq thermal sensitivity coefficient" for a seawater parcel with
-conservative temperature `Θ`, at fixed absolute salinity `Sᴬ`, and geopotential height `Z`
+conservative temperature `θ`, at fixed absolute salinity `Sᴬ`, and geopotential height `Z`
 using the Boussinesq `equation_of_state`. The thermal sensitivity coefficient is
 
 ```math
-a(Θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
+a(θ, Sᴬ, Z) = - \\left.\\frac{∂ρ}{∂θ}\\right|_{Sᴬ, Z} ,
 ```
 
 and measures how much seawater density changes when conservative temperature is changed.
@@ -24,14 +24,14 @@ downwards to negative values, towards the bottom of the ocean.
 function thermal_sensitivity end
 
 """
-    haline_sensitivity(Θ, Sᴬ, Z, equation_of_state)
+    haline_sensitivity(θ, Sᴬ, Z, equation_of_state)
 
 Return the "Boussinesq haline sensitivity coefficient" for a seawater parcel with absolute
-salinity `Sᴬ`, at fixed conservative temperature `Θ`, and geopotential height `Z`, using
+salinity `Sᴬ`, at fixed conservative temperature `θ`, and geopotential height `Z`, using
 the Boussinesq `equation_of_state`. The haline sensitivity coefficient is
 
 ```math
-b(Θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z} ,
+b(θ, Sᴬ, Z) = \\left.\\frac{∂ρ}{∂Sᴬ}\\right|_{θ, Z} ,
 ```
 
 and measures how much seawater density changes when absolute salinity is changed.
@@ -73,9 +73,9 @@ end
 @inline reference_density(eos) = eos.reference_density
 
 """
-    ρ(Θ, Sᴬ, Z, equation_of_state)
+    ρ(θ, Sᴬ, Z, equation_of_state)
 
-Return the total density of a seawater parcel with conservative temperature `Θ`, absolute
+Return the total density of a seawater parcel with conservative temperature `θ`, absolute
 salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
@@ -83,12 +83,12 @@ downwards to negative values, towards the bottom of the ocean.
 
 This function aliases `total_density`.
 """
-@inline ρ(Θ, Sᴬ, Z, eos) = eos.reference_density + ρ′(Θ, Sᴬ, Z, eos)
+@inline ρ(θ, Sᴬ, Z, eos) = eos.reference_density + ρ′(θ, Sᴬ, Z, eos)
 
 """
-    ρ′(Θ, Sᴬ, Z, equation_of_state)
+    ρ′(θ, Sᴬ, Z, equation_of_state)
 
-Return the density anomaly of a seawater parcel with conservative temperature `Θ`, absolute
+Return the density anomaly of a seawater parcel with conservative temperature `θ`, absolute
 salinity `Sᴬ`, at the geopotential height `Z`, using the Boussinesq `equation_of_state`.
 
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
@@ -102,15 +102,15 @@ const total_density = ρ
 const density_anomaly = ρ′
 
 """
-    thermal_expansion(Θ, Sᴬ, Z, equation_of_state)
+    thermal_expansion(θ, Sᴬ, Z, equation_of_state)
 
 Return the "Boussinesq thermal expansion coefficient" for a seawater parcel with reference
-density `ρᵣ` and conservative temperture `Θ`, at fixed absolute salinity `Sᴬ` and
+density `ρᵣ` and conservative temperture `θ`, at fixed absolute salinity `Sᴬ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The thermal expansion
 coefficient is
 
 ```math
-α(Θ, Sᴬ, Z) = - \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Θ}\\right|_{Sᴬ, Z} ,
+α(θ, Sᴬ, Z) = - \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂θ}\\right|_{Sᴬ, Z} ,
 ```
 
 and describes seawater density changes due to changes in conservative temperature.
@@ -122,19 +122,19 @@ fluid parcels. In many, but not all conditions in Earth's ocean (at temperatures
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
 """
-@inline thermal_expansion(Θ, Sᴬ, Z, eos::BEOS{<:Any, FT}) where FT =
-    thermal_sensitivity(FT(Θ), FT(Sᴬ), FT(Z), eos) / eos.reference_density
+@inline thermal_expansion(θ, Sᴬ, Z, eos::BEOS{<:Any, FT}) where FT =
+    thermal_sensitivity(FT(θ), FT(Sᴬ), FT(Z), eos) / eos.reference_density
 
 """
-    haline_contraction(Θ, Sᴬ, Z, equation_of_state)
+    haline_contraction(θ, Sᴬ, Z, equation_of_state)
 
 Return the "Boussinesq haline contraction coefficient" for a seawater parcel with reference
-density `ρᵣ` and absolute salinity `Sᴬ`, at fixed conservative temperture `Θ` and
+density `ρᵣ` and absolute salinity `Sᴬ`, at fixed conservative temperture `θ` and
 geopotential height `Z`, using the Boussinesq `equation_of_state`. The haline contraction
 coefficient is
 
 ```math
-β(Θ, Sᴬ, Z) = \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Sᴬ}\\right|_{Θ, Z},
+β(θ, Sᴬ, Z) = \\left.\\frac{1}{ρᵣ} \\frac{∂ρ}{∂Sᴬ}\\right|_{θ, Z},
 ```
 
 and describes changes in seawater density due to changes in absolute salinity.
@@ -145,7 +145,7 @@ fluid parcels.
 The geopotential height is defined such that ``Z(x, y) = 0`` at sea level and *decreases*
 downwards to negative values, towards the bottom of the ocean.
 """
-@inline haline_contraction(Θ, Sᴬ, Z, eos::BEOS) = haline_sensitivity(Θ, Sᴬ, Z, eos) / eos.reference_density
+@inline haline_contraction(θ, Sᴬ, Z, eos::BEOS) = haline_sensitivity(θ, Sᴬ, Z, eos) / eos.reference_density
 
 """
     AbstractSeawaterPolynomial

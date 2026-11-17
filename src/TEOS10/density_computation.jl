@@ -62,15 +62,15 @@ TEOS10EquationOfState(FT=Float64; reference_density=1020) =
 #####
 
 const Sₐᵤ = 40 * 35.16504 / 35
-const Θᵤ  = 40.0
+const θᵤ  = 40.0
 const Zᵤ  = 1e4
 const ΔS  = 32.0
 
 #####
-##### Coordinate transformations from (Θ, Sᴬ, p) to (τ, s, ζ)
+##### Coordinate transformations from (θ, Sᴬ, p) to (τ, s, ζ)
 #####
 
-@inline τ(Θ::FT) where FT = Θ / FT(Θᵤ)
+@inline τ(θ::FT) where FT = θ / FT(θᵤ)
 @inline s(Sᴬ::FT) where FT = √((Sᴬ + FT(ΔS)) / FT(Sₐᵤ))
 @inline ζ(Z::FT) where FT = - Z / FT(Zᵤ)
 
@@ -169,13 +169,13 @@ const R₀₁₃ =  3.7969820455e-01
 #####
 
 """
-    ρ(Θ, Sᴬ, Z, ::BoussinesqEquationOfState{<:TEOS10EquationOfState})
+    ρ(θ, Sᴬ, Z, ::BoussinesqEquationOfState{<:TEOS10EquationOfState})
 
-Return the in-situ density of seawater with state `(Θ, Sᴬ, Z)` using the 55-term polynomial
+Return the in-situ density of seawater with state `(θ, Sᴬ, Z)` using the 55-term polynomial
 approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
-- `Θ`: conservative temperature (ITS-90) [°C]
+- `θ`: conservative temperature (ITS-90) [°C]
 - `Sᴬ`: absolute salinity [g/kg]
 - `Z`: geopotential depth [m]
 
@@ -186,8 +186,8 @@ approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
-@inline ρ(Θ, Sᴬ, Z, ::EOS₁₀) = _ρ(τ(Θ), s(Sᴬ), ζ(Z))
-@inline ρ′(Θ, Sᴬ, Z, eos::EOS₁₀) = r′(τ(Θ), s(Sᴬ), ζ(Z)) - eos.reference_density 
+@inline ρ(θ, Sᴬ, Z, ::EOS₁₀) = _ρ(τ(θ), s(Sᴬ), ζ(Z))
+@inline ρ′(θ, Sᴬ, Z, eos::EOS₁₀) = r′(τ(θ), s(Sᴬ), ζ(Z)) - eos.reference_density 
 
 @inline _ρ(τ, s, ζ) = r₀(ζ) + r′(τ, s, ζ)
 
@@ -232,24 +232,24 @@ const α₀₁₂ =  6.2099915132e-02
 const α₀₀₃ = -9.4924551138e-03
 
 """
-    thermal_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
+    thermal_sensitivity(θ, Sᴬ, Z, ::TEOS10)
 
-Return the Boussinesq thermal sensitivity coefficient ``-∂ρ/∂Θ`` [kg/m³/K] computed using
+Return the Boussinesq thermal sensitivity coefficient ``-∂ρ/∂θ`` [kg/m³/K] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
-- `Θ`: conservative temperature (ITS-90) [°C]
+- `θ`: conservative temperature (ITS-90) [°C]
 - `Sᴬ`: absolute salinity [g/kg]
 - `Z`: geopotential depth [m]
 
 # Output
-- `a`: Boussinesq thermal sensitivity coefficient ``-∂ρ/∂Θ`` [kg/m³/K]
+- `a`: Boussinesq thermal sensitivity coefficient ``-∂ρ/∂θ`` [kg/m³/K]
 
 # References
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
-@inline thermal_sensitivity(Θ, Sᴬ, Z, ::EOS₁₀) = _a(τ(Θ), s(Sᴬ), ζ(Z))
+@inline thermal_sensitivity(θ, Sᴬ, Z, ::EOS₁₀) = _a(τ(θ), s(Sᴬ), ζ(Z))
 
 @inline _a(τ::FT, s::FT, ζ::FT) where FT =
       ((FT(α₀₀₃) * ζ + FT(α₀₁₂)  * τ + FT(α₁₀₂)  * s + FT(α₀₀₂)) * ζ +
@@ -303,13 +303,13 @@ const β₀₁₂ = -2.6514181169e-03
 const β₀₀₃ = -2.3025968587e-04
 
 """
-    haline_sensitivity(Θ, Sᴬ, Z, ::TEOS10)
+    haline_sensitivity(θ, Sᴬ, Z, ::TEOS10)
 
 Return the Boussinesq haline sensitivity coefficient ``∂ρ/∂Sᴬ`` [kg/m³/(g/kg)] computed using
 the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.1, 2014).
 
 # Inputs
-- `Θ`: conservative temperature (ITS-90) [°C]
+- `θ`: conservative temperature (ITS-90) [°C]
 - `Sᴬ`: absolute salinity [g/kg]
 - `Z`: geopotential depth [m]
 
@@ -320,7 +320,7 @@ the 55-term polynomial approximation to TEOS-10 described in Roquet et al. (§3.
 - Roquet, F., Madec, G., McDougall, T. J., Barker, P. M., 2014: Accurate polynomial expressions
   for the density and specific volume of seawater using the TEOS-10 standard. Ocean Modelling.
 """
-@inline haline_sensitivity(Θ, Sᴬ, Z, ::EOS₁₀) = _b(τ(Θ), s(Sᴬ), ζ(Z)) / s(Sᴬ)
+@inline haline_sensitivity(θ, Sᴬ, Z, ::EOS₁₀) = _b(τ(θ), s(Sᴬ), ζ(Z)) / s(Sᴬ)
 
 @inline _b(τ::FT, s::FT, ζ::FT) where FT =
       ((FT(β₀₀₃) * ζ + FT(β₀₁₂)  * τ + FT(β₁₀₂) * s + FT(β₀₀₂)) * ζ +
