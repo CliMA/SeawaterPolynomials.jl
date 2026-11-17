@@ -13,7 +13,7 @@ import SeawaterPolynomials: ρ, ρ′, thermal_sensitivity, haline_sensitivity, 
     struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
 
 Container of coefficients for a second-order polynomial function of
-absolute salinity `Sᴬ`, conservative temperature `Θ`, and geopotential
+absolute salinity `Sᴬ`, conservative temperature `θ`, and geopotential
 depth `Z` for seawater density.
 
 The coefficients have the form
@@ -24,14 +24,14 @@ Rᵦᵪᵩ ,
 
 where ``β, χ, φ`` denote the order of the term to which the coefficent corresponds:
 ``β`` is the polynomial order of absolute salinity, ``Sᴬ``, ``χ`` is the polynomial order
-of conservative temperature, ``Θ``, and ``φ`` is the order of geopotential height, ``Z``.
+of conservative temperature, ``θ``, and ``φ`` is the order of geopotential height, ``Z``.
 
 For a `SecondOrderSeawaterPolynomial`, ``β + χ + φ < 3``.
 
 The coefficient ``R₁₁₀`` arises in the seawater polynomial as
 
 ```
-seawater_polynomial(Θ, Sᴬ, Z) = ⋯ + R₁₁₀ * Sᴬ * Θ + ⋯
+seawater_polynomial(θ, Sᴬ, Z) = ⋯ + R₁₁₀ * Sᴬ * θ + ⋯
 ```
 """
 @Base.kwdef struct SecondOrderSeawaterPolynomial{FT} <: AbstractSeawaterPolynomial
@@ -62,35 +62,35 @@ signstr(x) = sign(x) < 0 ? " - " : " + "
 function Base.show(io::IO, eos::SecondOrderSeawaterPolynomial)
     print(io, "ρ' = ")
     print(io, eos.R₁₀₀, " Sᴬ")
-    print(io, signstr(eos.R₀₁₀), abs(eos.R₀₁₀), " Θ")
-    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " Θ²")
-    print(io, signstr(eos.R₀₁₁), abs(eos.R₀₁₁), " Θ Z")
+    print(io, signstr(eos.R₀₁₀), abs(eos.R₀₁₀), " θ")
+    print(io, signstr(eos.R₀₂₀), abs(eos.R₀₂₀), " θ²")
+    print(io, signstr(eos.R₀₁₁), abs(eos.R₀₁₁), " θ Z")
     print(io, signstr(eos.R₂₀₀), abs(eos.R₂₀₀), " Sᴬ²")
     print(io, signstr(eos.R₁₀₁), abs(eos.R₁₀₁), " Sᴬ Z")
-    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ Θ")
+    print(io, signstr(eos.R₁₁₀), abs(eos.R₁₁₀), " Sᴬ θ")
 end
 
-@inline ρ′(Θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₁₀₀ * Sᴬ
-                                   + eos.seawater_polynomial.R₀₁₀ * Θ
-                                   + eos.seawater_polynomial.R₀₂₀ * Θ^2
-                                   - eos.seawater_polynomial.R₀₁₁ * Θ * Z
+@inline ρ′(θ, Sᴬ, Z, eos::EOS₂) = (  eos.seawater_polynomial.R₁₀₀ * Sᴬ
+                                   + eos.seawater_polynomial.R₀₁₀ * θ
+                                   + eos.seawater_polynomial.R₀₂₀ * θ^2
+                                   - eos.seawater_polynomial.R₀₁₁ * θ * Z
                                    + eos.seawater_polynomial.R₂₀₀ * Sᴬ^2
                                    - eos.seawater_polynomial.R₁₀₁ * Sᴬ * Z
-                                   + eos.seawater_polynomial.R₁₁₀ * Sᴬ * Θ )
+                                   + eos.seawater_polynomial.R₁₁₀ * Sᴬ * θ )
 
 # Note: following the convention used throughout SeawaterPolynomials, the thermal
-# sensitivity is defined as -∂ρ′/∂Θ (positive for typical seawater), so that
+# sensitivity is defined as -∂ρ′/∂θ (positive for typical seawater), so that
 # thermal_expansion = thermal_sensitivity / reference_density. The haline sensitivity
 # is +∂ρ′/∂Sᴬ, so that haline_contraction = haline_sensitivity / reference_density.
-@inline thermal_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = -(      eos.seawater_polynomial.R₀₁₀
-                                                    + 2 * eos.seawater_polynomial.R₀₂₀ * Θ
+@inline thermal_sensitivity(θ, Sᴬ, Z, eos::EOS₂) = -(      eos.seawater_polynomial.R₀₁₀
+                                                    + 2 * eos.seawater_polynomial.R₀₂₀ * θ
                                                     -     eos.seawater_polynomial.R₀₁₁ * Z
                                                     +     eos.seawater_polynomial.R₁₁₀ * Sᴬ )
 
-@inline haline_sensitivity(Θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
+@inline haline_sensitivity(θ, Sᴬ, Z, eos::EOS₂) = (      eos.seawater_polynomial.R₁₀₀
                                                    + 2 * eos.seawater_polynomial.R₂₀₀ * Sᴬ
                                                    -     eos.seawater_polynomial.R₁₀₁ * Z
-                                                   +     eos.seawater_polynomial.R₁₁₀ * Θ )
+                                                   +     eos.seawater_polynomial.R₁₁₀ * θ )
 
 """
     RoquetSeawaterPolynomial([FT=Float64,] coefficient_set=:SecondOrder)
@@ -105,23 +105,23 @@ optimized second order coefficients.
 Coefficient sets
 ================
 
-- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ``.
+- `:Linear`: a linear equation of state, ``ρ = ρᵣ + R₀₁₀ θ + R₁₀₀ Sᴬ``.
 
-- `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ²``.
+- `:Cabbeling`: includes quadratic temperature term, ``ρ = ρᵣ + R₀₁₀ θ + R₁₀₀ Sᴬ + R₀₂₀ θ²``.
 
 - `:CabbelingThermobaricity`: includes 'thermobaricity' term,
-                              ``ρ = ρᵣ + R₀₁₀ Θ + R₁₀₀ Sᴬ + R₀₂₀ Θ² - R₀₁₁ Θ Z``.
+                              ``ρ = ρᵣ + R₀₁₀ θ + R₁₀₀ Sᴬ + R₀₂₀ θ² - R₀₁₁ θ Z``.
 
 - `:Freezing`: same as `:cabbeling_thermobaricity` with modified constants to increase
                accuracy near freezing.
 
 - `:SecondOrder`: includes quadratic salinity, halibaricity, and thermohaline term,
-                  ``ρ = ρᵣ + R₁₀₀ Sᴬ + R₀₁₀ Θ + R₀₂₀ Θ² - R₀₁₁ Θ Z
-                           + R₂₀₀ (Sᴬ)² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ Θ``.
+                  ``ρ = ρᵣ + R₁₀₀ Sᴬ + R₀₁₀ θ + R₀₂₀ θ² - R₀₁₁ θ Z
+                           + R₂₀₀ (Sᴬ)² - R₁₀₁ Sᴬ Z + R₁₁₀ Sᴬ θ``.
 
 - `:SimplestRealistic`: the proposed simplest though "realistic" equation of state for
                         seawater from Roquet et al. (2015),
-                        ``ρ = ρᵣ + R₁₀₀ Sᴬ  + R₀₁₀ Θ - R₀₂₀ Θ² - R₀₁₁ Θ Z``
+                        ``ρ = ρᵣ + R₁₀₀ Sᴬ  + R₀₁₀ θ - R₀₂₀ θ² - R₀₁₁ θ Z``
 
 The optimized coefficients are reported in Table 3 of Roquet et al., "Defining a Simplified
 yet 'Realistic' Equation of State for Seawater", Journal of Physical Oceanography (2015), and
@@ -134,7 +134,7 @@ they propose is the simplest yet "realistic" form for the equation of state for 
 of seawater.
 
 **Note:** In equation (17) by Roquet et al. (2015), the `:SimplestRealistic` equation
-of state has an extra term ``R₀₀₀ = - C_b Θ₀² / 2`` that is not included in the coefficient set
+of state has an extra term ``R₀₀₀ = - C_b θ₀² / 2`` that is not included in the coefficient set
 above since this term has no effect on ocean dynamics.
 """
 RoquetSeawaterPolynomial(FT::DataType, coefficient_set=:SecondOrder) =
@@ -248,10 +248,10 @@ function SimplestRealisticRoquetSeawaterPolynomial(FT=Float64)
     Cb = 0.011   # kg m⁻³ K⁻²
     Tₕ = 2.5e-5  # kg m⁻⁴ K⁻¹
     b₀ = 0.77    # kg m⁻³ (g kg⁻¹)⁻¹
-    Θ₀ = -4.5    # °C
+    θ₀ = -4.5    # °C
 
     return SecondOrderSeawaterPolynomial{FT}(R₁₀₀ = b₀,
-                                             R₀₁₀ = Cb * Θ₀,
+                                             R₀₁₀ = Cb * θ₀,
                                              R₀₂₀ = -Cb / 2,
                                              R₀₁₁ = -Tₕ)
 end
